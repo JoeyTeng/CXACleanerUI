@@ -4,7 +4,7 @@
  * @Email:  joey.teng.dev@gmail.com
  * @Filename: Flood-Filled.cs
  * @Last modified by:   Toujour
- * @Last modified time: 14-Jul-2017
+ * @Last modified time: 15-Jul-2017
  */
 using System;
 using System.Drawing;
@@ -101,16 +101,49 @@ namespace CXACleanerUI {
             map = new_map;
         }
 
-        public void Print() {
+        private void Print() {
+            Console.WriteLine("\nCheck Mapping\n");
             for (int i = 0; i < map.GetLength(1); ++i) {
                 for (int j = 0; j < map.GetLength(0); ++j) {
                     Console.Write(" {0}", map[j, i]);
                 }
                 Console.WriteLine();
             }
+            Console.WriteLine("\n[i, j]\n");
+            for (int i = 0; i < map.GetLength(0); ++i) {
+                for (int j = 0; j < map.GetLength(1); ++j) {
+                    Console.Write(" {0}", map[i, j]);
+                }
+                Console.WriteLine();
+            }
         }
 
-        static public int[,] Execute(string imageName, int resolution, int threshold) {
+        private static void Test(Mapping mapping) {
+            RoutingApplication.Coordinate initPoint = new RoutingApplication.Coordinate(3, 3);
+            RoutingApplication.Coordinate endPoint;
+            RoutingApplication.RouteNode[] route;
+            RoutingApplication.Routing.RouteSnakeShape(mapping.map, initPoint, out endPoint, out route);
+
+            System.Console.WriteLine("{0} {1}\n", endPoint.x, endPoint.y);
+
+            foreach (RoutingApplication.RouteNode node in route) {
+                System.Console.WriteLine("{0} {1}", node.direction, node.steps);
+            }
+
+            route = RoutingApplication.Routing.AStar(mapping.map, initPoint, endPoint);
+
+            System.Console.WriteLine("\nA*\n");
+            if (route == null) {
+                System.Console.WriteLine("\n Unreachable");
+
+                return;
+            }
+            foreach (RoutingApplication.RouteNode node in route) {
+                System.Console.WriteLine("{0} {1}", node.direction, node.steps);
+            }
+        }
+
+        public static int[,] Execute(string imageName, int resolution, int threshold) {
             Mapping mapping = new Mapping();
 
             mapping.LoadImage(imageName);
@@ -118,16 +151,7 @@ namespace CXACleanerUI {
             mapping.Compress(resolution);
             mapping.Print();
 
-            RoutingApplication.Coordinate initPoint = new RoutingApplication.Coordinate(1, 1);
-            RoutingApplication.Coordinate endPoint;
-            RoutingApplication.RouteNode[] route;
-            RoutingApplication.Routing.RouteSnakeShape(mapping.map, initPoint, out endPoint, out route);
-
-            System.Console.WriteLine("{0} {1}\n", endPoint.x, endPoint.y);
-
-            foreach(RoutingApplication.RouteNode node in route) {
-                System.Console.WriteLine("{0} {1}", node.direction, node.steps);
-            }
+            Test(mapping);
 
             return mapping.map;
         }
