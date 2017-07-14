@@ -22,7 +22,7 @@ namespace Constants {
         public const int BLOCK_MASK = (1 << BLOCK_LENGTH) - 1;
 
         public const int SELECTED = 1;
-        public const int UNSELECTED = 0;
+        public const int DESELECTED = 0;
         public const int SELECTED_SHIFT = BLOCK_SHIFT + BLOCK_LENGTH;
         public const int SELECTED_LENGTH = 1;
         public const int SELECTED_MASK = (1 << SELECTED_LENGTH);
@@ -47,7 +47,7 @@ namespace Constants {
         public const int TIMEOUT_LENGTH = 18;
         public const int TIMEOUT_MASK = (1 << TIMEOUT_LENGTH) - 1;
 
-        public const int DEFAULT = (UNBLOCK << BLOCK_SHIFT) | (UNSELECTED << SELECTED_SHIFT) | (UNPLANNED << PLANNED_SHIFT) | (UNCLEAN << CLEAN_SHIFT);
+        public const int DEFAULT = (UNBLOCK << BLOCK_SHIFT) | (DESELECTED << SELECTED_SHIFT) | (UNPLANNED << PLANNED_SHIFT) | (UNCLEAN << CLEAN_SHIFT);
 
         public static bool Blocked(MapNode[,] map, RoutingApplication.Coordinate position) {
             return (map[position.x, position.y] & (BLOCK_MASK << BLOCK_SHIFT)) == BLOCK;
@@ -63,6 +63,22 @@ namespace Constants {
 
         public static void Unblock(MapNode[,] map, RoutingApplication.Coordinate position) {
             map[position.x, position.y] |= (UNBLOCK << BLOCK_SHIFT);
+        }
+
+        public static bool Selected(MapNode[,] map, RoutingApplication.Coordinate position) {
+            return (map[position.x, position.y] & (SELECTED_MASK << SELECTED_SHIFT)) == SELECTED;
+        }
+
+        public static void Select(MapNode[,] map, RoutingApplication.Coordinate position) {
+            map[position.x, position.y] |= (SELECTED << SELECTED_SHIFT);
+        }
+
+        public static bool Deselected(MapNode[,] map, RoutingApplication.Coordinate position) {
+            return (map[position.x, position.y] & (SELECTED_MASK << SELECTED_SHIFT)) == DESELECTED;
+        }
+
+        public static void Deselect(MapNode[,] map, RoutingApplication.Coordinate position) {
+            map[position.x, position.y] |= (DESELECTED << SELECTED_SHIFT);
         }
 
         public static bool Clean(MapNode[,] map, RoutingApplication.Coordinate position) {
