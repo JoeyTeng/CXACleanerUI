@@ -19,11 +19,17 @@ namespace CXACleanerUI
         int[,] dragarea;
         string imageFileName;
         int imageResolution;
-        public Form1()
+        int threshold;
+        public Form1(string imagePath = null, int res = 15, int thr = 600, int[,] data = null)
         {
             InitializeComponent();
-            imageFileName = null;
-            imageResolution = 20;
+            imageFileName = imagePath;
+            textBox1.Text = res.ToString();
+            imageResolution = res;
+            textBox2.Text = thr.ToString();
+            threshold = thr;
+            mapdata = data;
+            RefreshImage();
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -136,11 +142,12 @@ namespace CXACleanerUI
         private void button1_Click(object sender, EventArgs e)
         {
             imageResolution = Int32.Parse(textBox1.Text);
+            threshold = Int32.Parse(textBox2.Text);
             OpenFileDialog ofd = new OpenFileDialog();
             if (ofd.ShowDialog() == DialogResult.OK) {
                 var filename = ofd.FileName;
                 imageFileName = filename;
-                mapdata = Mapping.Execute(imageFileName, imageResolution, Int32.Parse(textBox2.Text));
+                mapdata = Mapping.Execute(imageFileName, imageResolution, threshold);
                 dragarea = new MapNode[mapdata.GetLength(0), mapdata.GetLength(1)];
                 RefreshImage();
             }
@@ -169,7 +176,7 @@ namespace CXACleanerUI
 
         private void button2_Click(object sender, EventArgs e)
         {
-            new Form2().Visible = true;
+            new Form2(mapdata).Visible = true;
         }
 
         private void checkBox3_CheckedChanged(object sender, EventArgs e)

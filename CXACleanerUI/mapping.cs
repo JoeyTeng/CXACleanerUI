@@ -151,7 +151,7 @@ namespace CXACleanerUI {
             mapping.Compress(resolution);
             mapping.Print();
 
-            Test(mapping);
+            //Test(mapping);
 
             return mapping.map;
         }
