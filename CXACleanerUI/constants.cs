@@ -25,7 +25,7 @@ namespace Constants {
         public const int DESELECTED = 0;
         public const int SELECTED_SHIFT = BLOCK_SHIFT + BLOCK_LENGTH;
         public const int SELECTED_LENGTH = 1;
-        public const int SELECTED_MASK = (1 << SELECTED_LENGTH);
+        public const int SELECTED_MASK = (1 << SELECTED_LENGTH) - 1;
 
         public const int PLANNED = 1;
         public const int UNPLANNED = 0;
@@ -50,7 +50,7 @@ namespace Constants {
         public const int DEFAULT = (UNBLOCK << BLOCK_SHIFT) | (DESELECTED << SELECTED_SHIFT) | (UNPLANNED << PLANNED_SHIFT) | (UNCLEAN << CLEAN_SHIFT);
 
         public static bool Blocked(MapNode[,] map, RoutingApplication.Coordinate position) {
-            return (map[position.x, position.y] & (BLOCK_MASK << BLOCK_SHIFT)) == BLOCK;
+            return (map[position.x, position.y] & (BLOCK_MASK << BLOCK_SHIFT)) == (BLOCK << BLOCK_SHIFT);
         }
 
         public static void Block(MapNode[,] map, RoutingApplication.Coordinate position) {
@@ -58,7 +58,7 @@ namespace Constants {
         }
 
         public static bool Unblocked(MapNode[,] map, RoutingApplication.Coordinate position) {
-            return (map[position.x, position.y] & (BLOCK_MASK << BLOCK_SHIFT)) == UNBLOCK;
+            return (map[position.x, position.y] & (BLOCK_MASK << BLOCK_SHIFT)) == (UNBLOCK << BLOCK_SHIFT);
         }
 
         public static void Unblock(MapNode[,] map, RoutingApplication.Coordinate position) {
@@ -66,7 +66,7 @@ namespace Constants {
         }
 
         public static bool Selected(MapNode[,] map, RoutingApplication.Coordinate position) {
-            return (map[position.x, position.y] & (SELECTED_MASK << SELECTED_SHIFT)) == SELECTED;
+            return (map[position.x, position.y] & (SELECTED_MASK << SELECTED_SHIFT)) == (SELECTED << SELECTED_SHIFT);
         }
 
         public static void Select(MapNode[,] map, RoutingApplication.Coordinate position) {
@@ -74,19 +74,19 @@ namespace Constants {
         }
 
         public static bool Deselected(MapNode[,] map, RoutingApplication.Coordinate position) {
-            return (map[position.x, position.y] & (SELECTED_MASK << SELECTED_SHIFT)) == DESELECTED;
+            return (map[position.x, position.y] & (SELECTED_MASK << SELECTED_SHIFT)) == (DESELECTED << SELECTED_SHIFT);
         }
 
         public static void Deselect(MapNode[,] map, RoutingApplication.Coordinate position) {
-            map[position.x, position.y] |= (DESELECTED << SELECTED_SHIFT);
+            map[position.x, position.y] &= (DESELECTED << SELECTED_SHIFT);
         }
 
         public static bool Clean(MapNode[,] map, RoutingApplication.Coordinate position) {
-            return (map[position.x, position.y] & (CLEAN_MASK << CLEAN_SHIFT)) == CLEAN;
+            return (map[position.x, position.y] & (CLEAN_MASK << CLEAN_SHIFT)) == (CLEAN << CLEAN_SHIFT);
         }
 
         public static bool Dirty(MapNode[,] map, RoutingApplication.Coordinate position) {
-            return (map[position.x, position.y] & (CLEAN_MASK << CLEAN_SHIFT)) == UNCLEAN;
+            return (map[position.x, position.y] & (CLEAN_MASK << CLEAN_SHIFT)) == (UNCLEAN << CLEAN_SHIFT);
         }
 
         public static bool Unclean(MapNode[,] map, RoutingApplication.Coordinate position) {
@@ -94,7 +94,7 @@ namespace Constants {
     }
 
         public static bool Planned(MapNode[,] map, RoutingApplication.Coordinate position) {
-            return (map[position.x, position.y] & (PLANNED_MASK << PLANNED_SHIFT)) == PLANNED;
+            return (map[position.x, position.y] & (PLANNED_MASK << PLANNED_SHIFT)) == (PLANNED << PLANNED_SHIFT);
         }
 
         public static void PlannedSet(MapNode[,] map, RoutingApplication.Coordinate position) {
@@ -102,7 +102,7 @@ namespace Constants {
         }
 
         public static bool Unplanned(MapNode[,] map, RoutingApplication.Coordinate position) {
-            return (map[position.x, position.y] & (PLANNED_MASK << PLANNED_SHIFT)) == UNPLANNED;
+            return (map[position.x, position.y] & (PLANNED_MASK << PLANNED_SHIFT)) == (UNPLANNED << PLANNED_SHIFT);
         }
     }
 
