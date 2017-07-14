@@ -14,6 +14,9 @@ namespace Constants {
         public const int MASK = (1 << COLOR_SHIFT) - 1;
 
     /// Element in map
+    /// Map [0..GetLength(0)]
+    ///     [.]
+    ///     [GetLength(1)]
     /// BLOCK_FLAG * 1 + Selected * 1 + Planned * 1 + CLEAN * 1 + AgentSerialNumber * 10 + Timeout * 18
         public const int BLOCK = 0;
         public const int UNBLOCK = 1;
@@ -119,5 +122,14 @@ namespace Constants {
         };
 
         public const int DIR_INIT_POINT = 4;
+    }
+
+    class AgentConstants {
+        public static char [,] CODE = new char[,] {
+            {(char)64, (char)41, (char)96, (char)40}, /// Forward, Turn Right, Backward, Turn Left
+            {(char)40, (char)64, (char)41, (char)96},
+            {(char)96, (char)40, (char)64, (char)41},
+            {(char)41, (char)96, (char)40, (char)64}
+        };
     }
 }
