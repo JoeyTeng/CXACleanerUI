@@ -54,7 +54,7 @@ namespace Constants {
         }
 
         public static void Block(MapNode[,] map, RoutingApplication.Coordinate position) {
-            map[position.x, position.y] &= (BLOCK << BLOCK_SHIFT);
+            map[position.x, position.y] &= (~(BLOCK_MASK << BLOCK_SHIFT)) | (BLOCK << BLOCK_SHIFT);
         }
 
         public static bool Unblocked(MapNode[,] map, RoutingApplication.Coordinate position) {
@@ -78,7 +78,7 @@ namespace Constants {
         }
 
         public static void Deselect(MapNode[,] map, RoutingApplication.Coordinate position) {
-            map[position.x, position.y] &= (DESELECTED << SELECTED_SHIFT);
+            map[position.x, position.y] &= (~(SELECTED_MASK << SELECTED_SHIFT)) | (DESELECTED << SELECTED_SHIFT);
         }
 
         public static bool Clean(MapNode[,] map, RoutingApplication.Coordinate position) {
