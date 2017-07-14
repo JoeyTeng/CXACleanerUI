@@ -26,6 +26,12 @@ namespace CXACleanerUI {
             int max_y = map.GetLength(1);
 
             for (int i = 0; i < max_x; ++i) {
+                for (int j = 0; j < max_y; ++j) {
+                    map[i, j] = MappingConstants.DEFAULT;
+                }
+            }
+
+            for (int i = 0; i < max_x; ++i) {
                 map[i, 0] = MappingConstants.BLOCK;
                 map[i, max_y - 1] = MappingConstants.BLOCK;
             }
@@ -104,7 +110,7 @@ namespace CXACleanerUI {
             }
         }
 
-        static private void Execute(string imageName, int resolution, int threshold) {
+        static public int[,] Execute(string imageName, int resolution, int threshold) {
             Mapping mapping = new Mapping();
 
             mapping.LoadImage(imageName);
@@ -122,10 +128,8 @@ namespace CXACleanerUI {
             foreach(RoutingApplication.RouteNode node in route) {
                 System.Console.WriteLine("{0} {1}", node.direction, node.steps);
             }
-        }
 
-        static void Main(string[] args) {
-            Execute(args[0], 15, 500);
+            return mapping.map;
         }
     }
 }

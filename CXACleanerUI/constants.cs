@@ -15,8 +15,8 @@ namespace Constants {
 
     /// Element in map
     /// BLOCK_FLAG * 1 + Selected * 1 + Planned * 1 + CLEAN * 1 + AgentSerialNumber * 10 + Timeout * 18
-        public const int BLOCK = 1;
-        public const int UNBLOCK = 0;
+        public const int BLOCK = 0;
+        public const int UNBLOCK = 1;
         public const int BLOCK_SHIFT = 0;
         public const int BLOCK_LENGTH = 1;
         public const int BLOCK_MASK = (1 << BLOCK_LENGTH) - 1;
@@ -47,13 +47,22 @@ namespace Constants {
         public const int TIMEOUT_LENGTH = 18;
         public const int TIMEOUT_MASK = (1 << TIMEOUT_LENGTH) - 1;
 
+        public const int DEFAULT = (UNBLOCK << BLOCK_SHIFT) | (UNSELECTED << SELECTED_SHIFT) | (UNPLANNED << PLANNED_SHIFT) | (UNCLEAN << CLEAN_SHIFT);
 
         public static bool Blocked(MapNode[,] map, RoutingApplication.Coordinate position) {
             return (map[position.x, position.y] & (BLOCK_MASK << BLOCK_SHIFT)) == BLOCK;
         }
 
+        public static void Block(MapNode[,] map, RoutingApplication.Coordinate position) {
+            map[position.x, position.y] &= (BLOCK << BLOCK_SHIFT);
+        }
+
         public static bool Unblocked(MapNode[,] map, RoutingApplication.Coordinate position) {
             return (map[position.x, position.y] & (BLOCK_MASK << BLOCK_SHIFT)) == UNBLOCK;
+        }
+
+        public static void Unblock(MapNode[,] map, RoutingApplication.Coordinate position) {
+            map[position.x, position.y] |= (UNBLOCK << BLOCK_SHIFT);
         }
 
         public static bool Clean(MapNode[,] map, RoutingApplication.Coordinate position) {
