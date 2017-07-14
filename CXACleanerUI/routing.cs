@@ -120,14 +120,18 @@ namespace RoutingApplication {
             return (realDistance[point.x, point.y] + estimatedDistance[point.x, point.y]);
         }
 
-        private static RouteNode[] AStarRebuildRoute(Coordinate destination, int[,] history) {
-            System.Console.WriteLine("A* Rebuild Route\n");
+        private static RouteNode[] AStarRebuildRoute(MapNode[,] map, Coordinate destination, int[,] history) {
+            System.Console.WriteLine("A* Rebuild Route\n"); /// DEBUG
+
             System.Collections.Generic.Queue<int> record = new System.Collections.Generic.Queue<int>();
             System.Collections.Generic.Stack<int> stack = new System.Collections.Generic.Stack<int>();
 
             Coordinate current = new Coordinate(destination);
+            ClearPlan(map);
             while (history[current.x, current.y] != RoutingConstants.DIR_INIT_POINT) {
                 int direction = history[current.x, current.y];
+
+                Constants.MappingConstants.Plan(map, current);
                 System.Console.WriteLine("{0}", direction);
 
                 stack.Push(direction);
@@ -145,7 +149,7 @@ namespace RoutingApplication {
             Coordinate next;
             next = current + RoutingConstants.MOVE_INCREMENT[direction];
 
-            if (MappingConstants.Unblocked(map, next) && (!selectedOnly || MappingConstants.Selected(map, next)) && (selectedOnly || ignoreFlags || (MappingConstants.Unplanned(map, next) && MappingConstants.Unclean(map, next)))) {
+            if (MappingConstants.Unblocked(map, next) && ((!selectedOnly || MappingConstants.Selected(map, next)) && MappingConstants.Unplanned(map, next)) && (selectedOnly || ignoreFlags || (MappingConstants.Unplanned(map, next) && MappingConstants.Unclean(map, next)))) {
                 nextPoint = next;
                 return true;
             } else {
@@ -176,6 +180,14 @@ namespace RoutingApplication {
             return route.ToArray();
         }
 /// Public
+
+        public static void ClearPlan(MapNode[,] map) {
+            for (int i = 0; i < map.GetLength(0); ++i) {
+                for (int j = 0; j < map.GetLength(0); ++j) {
+                    Constants.MappingConstants.Unplan(map, new Coordinate(i, j));
+                }
+            }
+        }
         public static RouteNode[] AStar(MapNode[,] map, Coordinate initPoint, Coordinate destination) {
             System.Console.WriteLine("{0} {1} => {2} {3}", initPoint.x, initPoint.y, destination.x, destination.y);
 
@@ -205,7 +217,7 @@ namespace RoutingApplication {
                 estimatingSet.Remove(current.Hash);
 
                 if (current == destination) {
-                    return AStarRebuildRoute(destination, record);
+                    return AStarRebuildRoute(map, destination, record);
                 }
 
                 estimatedPoints.Add(current.Hash, estimatedCount++);
@@ -234,7 +246,7 @@ namespace RoutingApplication {
         }
 
         public static void RouteSnakeShape(MapNode[,] map, Coordinate initPoint, out Coordinate endPoint, out RouteNode[] route, bool ignoreFlags = false, bool selectedOnly = false) {
-            System.Collections.Generic.Queue<int> record = new System.Collections.Generic.Queue<int>();
+            System.Collections.Generic.Queue<int> record = new System.Collections.Generic.Queue<int>(map.Length);
             Coordinate current = new Coordinate(initPoint);
             int direction = 0;
 
@@ -243,14 +255,14 @@ namespace RoutingApplication {
 
                 while (CheckNextStep(map, current, direction, out current, ignoreFlags: ignoreFlags, selectedOnly: selectedOnly)) {
                     record.Enqueue(direction);
-                    MappingConstants.PlannedSet(map, current);
+                    MappingConstants.Plan(map, current);
                 }
                 if (CheckNextStep(map, current, 1, out current, ignoreFlags: ignoreFlags, selectedOnly: selectedOnly)) {
                     record.Enqueue(1);
-                    MappingConstants.PlannedSet(map, current);
+                    MappingConstants.Plan(map, current);
                 } else if (CheckNextStep(map, current, 3, out current, ignoreFlags: ignoreFlags, selectedOnly: selectedOnly)) {
                     record.Enqueue(3);
-                    MappingConstants.PlannedSet(map, current);
+                    MappingConstants.Plan(map, current);
                 } else {
                     break;
                 }
