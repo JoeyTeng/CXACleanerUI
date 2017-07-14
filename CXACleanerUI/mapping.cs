@@ -157,6 +157,7 @@ namespace CXACleanerUI {
         }
 
         static public RoutingApplication.RouteNode[] FindPath(int[,] map, int X, int Y, bool ignoreFlags = false, bool selectedOnly = false) {
+            RoutingApplication.Routing.ClearPlan(map);
             RoutingApplication.Coordinate initPoint = new RoutingApplication.Coordinate(X, Y);
             RoutingApplication.Coordinate endPoint;
             RoutingApplication.RouteNode[] route;

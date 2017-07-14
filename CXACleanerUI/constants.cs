@@ -97,12 +97,16 @@ namespace Constants {
             return (map[position.x, position.y] & (PLANNED_MASK << PLANNED_SHIFT)) == (PLANNED << PLANNED_SHIFT);
         }
 
-        public static void PlannedSet(MapNode[,] map, RoutingApplication.Coordinate position) {
+        public static void Plan(MapNode[,] map, RoutingApplication.Coordinate position) {
             map[position.x, position.y] |= (PLANNED << PLANNED_SHIFT);
         }
 
         public static bool Unplanned(MapNode[,] map, RoutingApplication.Coordinate position) {
             return (map[position.x, position.y] & (PLANNED_MASK << PLANNED_SHIFT)) == (UNPLANNED << PLANNED_SHIFT);
+        }
+
+        public static void Unplan(MapNode[,] map, RoutingApplication.Coordinate position) {
+            map[position.x, position.y] &= (~(PLANNED_MASK << PLANNED_SHIFT)) | (UNPLANNED << PLANNED_SHIFT);
         }
     }
 
