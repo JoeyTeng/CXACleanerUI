@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -10,9 +10,10 @@ using System.Windows.Forms;
 
 namespace CXACleanerUI
 {
+    using MapNode = System.Int32;
     public partial class Form1 : Form
     {
-        int[,] mapdata;
+        MapNode[,] mapdata;
         Image map;
         Point mouseStart = new Point(-1, -1);
         int[,] dragarea;
@@ -49,12 +50,12 @@ namespace CXACleanerUI
                 {
                     if (checkBox2.Checked == true)
                     {
-                        if (mapdata[i, j] == 1)
+                        if (Constants.MappingConstants.Unblocked(mapdata, new RoutingApplication.Coordinate(i, j)))
                         {
                             g.DrawRectangle(new Pen(Color.DarkGray, (float)1), i * imageResolution, j * imageResolution, imageResolution, imageResolution);
                         }
                     }
-                    if (mapdata[i, j] == 2)
+                    if (Constants.MappingConstants.Selected(mapdata, new RoutingApplication.Coordinate(i, j)))
                     {
                         g.FillRectangle(new SolidBrush(Color.FromArgb(128, Color.LightGreen)), i * imageResolution, j * imageResolution, imageResolution, imageResolution);
                         if (checkBox2.Checked == true) { g.DrawRectangle(new Pen(Color.DarkGray, (float)1), i * imageResolution, j * imageResolution, imageResolution, imageResolution); }
@@ -72,8 +73,12 @@ namespace CXACleanerUI
                 {
                     int X = (int)(e.X / imageResolution);
                     int Y = (int)(e.Y / imageResolution);
-                    if (mapdata[X, Y] == 1) { mapdata[X, Y] = 2; }
-                    else if (mapdata[X, Y] == 2) { mapdata[X, Y] = 1; }
+                    if (Constants.MappingConstants.Unblocked(mapdata, new RoutingApplication.Coordinate(X, Y)) && Constants.MappingConstants.Deselected(mapdata, new RoutingApplication.Coordinate(X, Y))) {
+                        Constants.MappingConstants.Select(mapdata, new RoutingApplication.Coordinate(X, Y));
+                    }
+                    else if (Constants.MappingConstants.Selected(mapdata, new RoutingApplication.Coordinate(X, Y))) {
+                        Constants.MappingConstants.Deselect(mapdata, new RoutingApplication.Coordinate(X, Y));
+                    }
                     RefreshImage();
                 }
                 else if (radioButton2.Checked)
@@ -114,8 +119,12 @@ namespace CXACleanerUI
                     {
                         for (int j = startPoint.Y; j < endPoint.Y + 1; j++)
                         {
-                            if (comboBox1.SelectedIndex == 0 && mapdata[i, j] != 0) { mapdata[i, j] = 2; }
-                            else if (comboBox1.SelectedIndex == 1 && mapdata[i, j] != 0) { mapdata[i, j] = 1; }
+                            if (comboBox1.SelectedIndex == 0 && Constants.MappingConstants.Unblocked(mapdata, new RoutingApplication.Coordinate(i, j))) {
+                                Constants.MappingConstants.Select(mapdata, new RoutingApplication.Coordinate(i, j));
+                            }
+                            else if (comboBox1.SelectedIndex == 1 && Constants.MappingConstants.Unblocked(mapdata, new RoutingApplication.Coordinate(i, j))) {
+                                Constants.MappingConstants.Deselect(mapdata, new RoutingApplication.Coordinate(i, j));
+                            }
                         }
                     }
                     RefreshImage();
@@ -132,7 +141,7 @@ namespace CXACleanerUI
                 var filename = ofd.FileName;
                 imageFileName = filename;
                 mapdata = Mapping.Execute(imageFileName, imageResolution, Int32.Parse(textBox2.Text));
-                dragarea = new int[mapdata.GetLength(0), mapdata.GetLength(1)];
+                dragarea = new MapNode[mapdata.GetLength(0), mapdata.GetLength(1)];
                 RefreshImage();
             }
         }
@@ -173,10 +182,15 @@ namespace CXACleanerUI
             capPath.AddLine(-4, -4, 0, 5);
             capPath.AddLine(4, -4, 0, 5);
             p.CustomEndCap = new System.Drawing.Drawing2D.CustomLineCap(null, capPath);
-            RoutingApplication.RouteNode[] route = Mapping.FindPath(mapdata, 1, 1);
+            RoutingApplication.RouteNode[] route = Mapping.FindPath(mapdata, 1, 1, selectedOnly: true);
             int currentX = 1; int currentY = 1;
+            if (route == null) {
+                pictureBox1.Image = pic;
+
+                return;
+            }
             foreach (RoutingApplication.RouteNode i in route) {
-                g.DrawLine(p, (float)(0.5 + currentX) * imageResolution, (float)(0.5 + currentY) * imageResolution, 
+                g.DrawLine(p, (float)(0.5 + currentX) * imageResolution, (float)(0.5 + currentY) * imageResolution,
                     (float)(0.5 + currentX + Constants.RoutingConstants.MOVE_INCREMENT[i.direction].x * i.steps) * imageResolution,
                     (float)(0.5 + currentY + Constants.RoutingConstants.MOVE_INCREMENT[i.direction].y * i.steps) * imageResolution);
                 currentX += Constants.RoutingConstants.MOVE_INCREMENT[i.direction].x * i.steps;

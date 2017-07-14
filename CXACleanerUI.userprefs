@@ -1,0 +1,14 @@
+﻿<Properties StartupConfiguration="{BCE35AC1-57B2-4910-8FCB-358E2A8AC5FE}|Default">
+  <MonoDevelop.Ide.Workbench ActiveDocument="CXACleanerUI/test.cs">
+    <Files>
+      <File FileName="CXACleanerUI/test.cs" Line="25" Column="127" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MultiItemStartupConfigurations />
+  <MonoDevelop.Ide.ItemProperties.CXACleanerUI PreferredExecutionTarget="MonoDevelop.Default" />
+</Properties>

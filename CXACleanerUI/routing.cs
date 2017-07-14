@@ -141,11 +141,11 @@ namespace RoutingApplication {
             return RebuildRoute(record);
         }
 
-        private static bool CheckNextStep(MapNode[,] map, Coordinate current, int direction, out Coordinate nextPoint, bool ignoreFlags = false) {
+        private static bool CheckNextStep(MapNode[,] map, Coordinate current, int direction, out Coordinate nextPoint, bool ignoreFlags = false, bool selectedOnly = false) {
             Coordinate next;
             next = current + RoutingConstants.MOVE_INCREMENT[direction];
 
-            if (MappingConstants.Unblocked(map, next) && (ignoreFlags || (MappingConstants.Unplanned(map, next) && MappingConstants.Unclean(map, next)))) {
+            if (MappingConstants.Unblocked(map, next) && (!selectedOnly || MappingConstants.Selected(map, next)) && (selectedOnly || ignoreFlags || (MappingConstants.Unplanned(map, next) && MappingConstants.Unclean(map, next)))) {
                 nextPoint = next;
                 return true;
             } else {
@@ -155,6 +155,10 @@ namespace RoutingApplication {
         }
 
         private static RouteNode[] RebuildRoute(System.Collections.Generic.Queue<int> history) {
+            if (history.Count == 0) {
+                return null;
+            }
+
             RouteNode current = new RouteNode(history.Dequeue(), 1);
             System.Collections.Generic.Queue<RouteNode> route = new System.Collections.Generic.Queue<RouteNode>();
 
@@ -207,7 +211,7 @@ namespace RoutingApplication {
                 estimatedPoints.Add(current.Hash, estimatedCount++);
                 Coordinate next;
                 for (int i = 0; i < RoutingConstants.MOVE_INCREMENT.Length; ++i) {
-                    if (!CheckNextStep(map, current, i, out next, true)) {
+                    if (!CheckNextStep(map, current, i, out next, ignoreFlags: true)) {
                         continue;
                     }
                     if (estimatedPoints.Contains(next.Hash)) {
@@ -229,7 +233,7 @@ namespace RoutingApplication {
             return null;
         }
 
-        public static void RouteSnakeShape(MapNode[,] map, Coordinate initPoint, out Coordinate endPoint, out RouteNode[] route) {
+        public static void RouteSnakeShape(MapNode[,] map, Coordinate initPoint, out Coordinate endPoint, out RouteNode[] route, bool ignoreFlags = false, bool selectedOnly = false) {
             System.Collections.Generic.Queue<int> record = new System.Collections.Generic.Queue<int>();
             Coordinate current = new Coordinate(initPoint);
             int direction = 0;
@@ -237,14 +241,14 @@ namespace RoutingApplication {
             while (true) {
                 /// TODO: How do detect better init direction?
 
-                while (CheckNextStep(map, current, direction, out current)) {
+                while (CheckNextStep(map, current, direction, out current, ignoreFlags: ignoreFlags, selectedOnly: selectedOnly)) {
                     record.Enqueue(direction);
                     MappingConstants.PlannedSet(map, current);
                 }
-                if (CheckNextStep(map, current, 1, out current)) {
+                if (CheckNextStep(map, current, 1, out current, ignoreFlags: ignoreFlags, selectedOnly: selectedOnly)) {
                     record.Enqueue(1);
                     MappingConstants.PlannedSet(map, current);
-                } else if (CheckNextStep(map, current, 3, out current)) {
+                } else if (CheckNextStep(map, current, 3, out current, ignoreFlags: ignoreFlags, selectedOnly: selectedOnly)) {
                     record.Enqueue(3);
                     MappingConstants.PlannedSet(map, current);
                 } else {
