@@ -4,7 +4,7 @@
  * @Email:  joey.teng.dev@gmail.com
  * @Filename: constants.cs
  * @Last modified by:   Toujour
- * @Last modified time: 14-Jul-2017
+ * @Last modified time: 15-Jul-2017
  */
 namespace Constants {
     using MapNode = System.Int32;
@@ -97,5 +97,7 @@ namespace Constants {
             new RoutingApplication.Coordinate(-1, 0),
             new RoutingApplication.Coordinate(0, -1)
         };
+
+        public const int DIR_INIT_POINT = 4;
     }
 }
