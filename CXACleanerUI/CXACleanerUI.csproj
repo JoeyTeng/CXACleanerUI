@@ -43,16 +43,12 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-<<<<<<< HEAD
     <Compile Include="Form2.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Form2.Designer.cs">
       <DependentUpon>Form2.cs</DependentUpon>
     </Compile>
-    <Compile Include="MappingConstants.cs" />
-=======
->>>>>>> d0217dc1c1ce17c7e6051e4f2cd71078898a708d
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
     </Compile>

@@ -192,5 +192,27 @@ namespace CXACleanerUI
         {
             new Form2().Visible = true;
         }
+
+        private void checkBox3_CheckedChanged(object sender, EventArgs e)
+        {
+            Image pic = pictureBox1.Image;
+            Graphics g = Graphics.FromImage(pic);
+            Pen p = new Pen(Color.Orange);
+            GraphicsPath capPath = new GraphicsPath();
+            capPath.AddLine(-4, -4, 4, -4);
+            capPath.AddLine(-4, -4, 0, 5);
+            capPath.AddLine(4, -4, 0, 5);
+            p.CustomEndCap = new System.Drawing.Drawing2D.CustomLineCap(null, capPath);
+            RoutingApplication.RouteNode[] route = Mapping.FindPath(mapdata, 1, 1);
+            int currentX = 1; int currentY = 1;
+            foreach (RoutingApplication.RouteNode i in route) {
+                g.DrawLine(p, (float)(0.5 + currentX) * imageResolution, (float)(0.5 + currentY) * imageResolution, 
+                    (float)(0.5 + currentX + Constants.RoutingConstants.MOVE_INCREMENT[i.direction].x * i.steps) * imageResolution,
+                    (float)(0.5 + currentY + Constants.RoutingConstants.MOVE_INCREMENT[i.direction].y * i.steps) * imageResolution);
+                currentX += Constants.RoutingConstants.MOVE_INCREMENT[i.direction].x * i.steps;
+                currentY += Constants.RoutingConstants.MOVE_INCREMENT[i.direction].y * i.steps;
+            }
+            pictureBox1.Image = pic;
+        }
     }
 }
