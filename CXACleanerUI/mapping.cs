@@ -4,24 +4,32 @@
  * @Email:  joey.teng.dev@gmail.com
  * @Filename: Flood-Filled.cs
  * @Last modified by:   Toujour
- * @Last modified time: 11-Jul-2017
+ * @Last modified time: 14-Jul-2017
  */
 using System;
 using System.Drawing;
+using Constants;
 
-namespace CXACleanerUI
-{
+namespace CXACleanerUI {
+    using MapNode = System.Int32;
+
     class Mapping {
         private Bitmap image;
-        private int[,] map;
+        private MapNode[,] map;
 
         private void LoadImage(string path) {
             image = new Bitmap(path, true);
         }
 
-        private void InitMap(int[,] map) {
+        private void InitMap(MapNode[,] map) {
             int max_x = map.GetLength(0);
             int max_y = map.GetLength(1);
+
+            for (int i = 0; i < max_x; ++i) {
+                for (int j = 0; j < max_y; ++j) {
+                    map[i, j] = MappingConstants.DEFAULT;
+                }
+            }
 
             for (int i = 0; i < max_x; ++i) {
                 map[i, 0] = MappingConstants.BLOCK;
@@ -44,7 +52,7 @@ namespace CXACleanerUI
             return ((color & MappingConstants.MASK) + ((color >> MappingConstants.COLOR_SHIFT) & MappingConstants.MASK) + ((color >> MappingConstants.COLOR_SHIFT * 2) & MappingConstants.MASK));
         }
 
-        private int Transfer(int color, int threshold) {
+        private int Transfer(int color, int threshold = 400) {
             /// Default number is a magic number
             int sum = SumColor(color);
 
@@ -82,7 +90,7 @@ namespace CXACleanerUI
             y = (y != 0) ? y : x;
             int max_x = image.Width / x;
             int max_y = image.Height / y;
-            int[,] new_map = new int[(image.Width / x) + 2, (image.Height / y) + 2];
+            MapNode[,] new_map = new int[(image.Width / x) + 2, (image.Height / y) + 2];
             InitMap(new_map);
 
             for (int i = 0; i < max_x; ++i) {
@@ -102,14 +110,26 @@ namespace CXACleanerUI
             }
         }
 
-        public static int[,] Execute(string imageName, int resolution, int threshold) {
-            Mapping r = new Mapping();
+        static public int[,] Execute(string imageName, int resolution, int threshold) {
+            Mapping mapping = new Mapping();
 
-            r.LoadImage(imageName);
-            r.Fill(threshold);
-            r.Compress(resolution);
-            //r.Print();
-            return r.map;
+            mapping.LoadImage(imageName);
+            mapping.Fill(threshold);
+            mapping.Compress(resolution);
+            mapping.Print();
+
+            RoutingApplication.Coordinate initPoint = new RoutingApplication.Coordinate(1, 1);
+            RoutingApplication.Coordinate endPoint;
+            RoutingApplication.RouteNode[] route;
+            RoutingApplication.Routing.RouteSnakeShape(mapping.map, initPoint, out endPoint, out route);
+
+            System.Console.WriteLine("{0} {1}\n", endPoint.x, endPoint.y);
+
+            foreach(RoutingApplication.RouteNode node in route) {
+                System.Console.WriteLine("{0} {1}", node.direction, node.steps);
+            }
+
+            return mapping.map;
         }
     }
 }

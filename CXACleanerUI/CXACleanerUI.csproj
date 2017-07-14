@@ -38,8 +38,12 @@
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
+    <Reference Include="Priority Queue">
+      <HintPath>..\packages\OptimizedPriorityQueue.4.1.1\lib\net20\Priority Queue.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
+<<<<<<< HEAD
     <Compile Include="Form2.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -47,6 +51,8 @@
       <DependentUpon>Form2.cs</DependentUpon>
     </Compile>
     <Compile Include="MappingConstants.cs" />
+=======
+>>>>>>> d0217dc1c1ce17c7e6051e4f2cd71078898a708d
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -80,6 +86,9 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <Compile Include="constants.cs" />
+    <Compile Include="routing.cs" />
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
