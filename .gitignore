@@ -1,2 +1,5 @@
 *.pdb
 *.exe
+packages/
+CXACleanerUI/bin/
+CXACleanerUI/obj/
