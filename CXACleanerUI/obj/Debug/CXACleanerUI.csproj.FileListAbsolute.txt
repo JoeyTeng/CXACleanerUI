@@ -1,0 +1,8 @@
+c:\users\tianzhen\documents\visual studio 2015\Projects\CXACleanerUI\CXACleanerUI\bin\Debug\CXACleanerUI.exe
+c:\users\tianzhen\documents\visual studio 2015\Projects\CXACleanerUI\CXACleanerUI\bin\Debug\CXACleanerUI.pdb
+c:\users\tianzhen\documents\visual studio 2015\Projects\CXACleanerUI\CXACleanerUI\obj\Debug\CXACleanerUI.csprojResolveAssemblyReference.cache
+c:\users\tianzhen\documents\visual studio 2015\Projects\CXACleanerUI\CXACleanerUI\obj\Debug\CXACleanerUI.Form1.resources
+c:\users\tianzhen\documents\visual studio 2015\Projects\CXACleanerUI\CXACleanerUI\obj\Debug\CXACleanerUI.Properties.Resources.resources
+c:\users\tianzhen\documents\visual studio 2015\Projects\CXACleanerUI\CXACleanerUI\obj\Debug\CXACleanerUI.csproj.GenerateResource.Cache
+c:\users\tianzhen\documents\visual studio 2015\Projects\CXACleanerUI\CXACleanerUI\obj\Debug\CXACleanerUI.exe
+c:\users\tianzhen\documents\visual studio 2015\Projects\CXACleanerUI\CXACleanerUI\obj\Debug\CXACleanerUI.pdb
