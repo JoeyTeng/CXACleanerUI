@@ -155,5 +155,22 @@ namespace CXACleanerUI {
 
             return mapping.map;
         }
+
+        static public RoutingApplication.RouteNode[] FindPath(int[,] map, int X, int Y)
+        {
+            RoutingApplication.Coordinate initPoint = new RoutingApplication.Coordinate(X, Y);
+            RoutingApplication.Coordinate endPoint;
+            RoutingApplication.RouteNode[] route;
+            RoutingApplication.Routing.RouteSnakeShape(map, initPoint, out endPoint, out route);
+
+            //System.Console.WriteLine("{0} {1}\n", endPoint.x, endPoint.y);
+
+            //foreach (RoutingApplication.RouteNode node in route)
+            //{
+            //    System.Console.WriteLine("{0} {1}", node.direction, node.steps);
+            //}
+
+            return route;
+        }
     }
 }

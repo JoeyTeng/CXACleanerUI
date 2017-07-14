@@ -81,7 +81,7 @@ namespace CXACleanerUI
             }
             catch (SocketException err)
             {
-                MessageBox.Show("Connection denied by the server.");
+                MessageBox.Show(this, "Connection denied by the server.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
 
             }
         }

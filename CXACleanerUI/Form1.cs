@@ -51,13 +51,13 @@ namespace CXACleanerUI
                     {
                         if (mapdata[i, j] == 1)
                         {
-                            g.DrawRectangle(new Pen(Color.Black, (float)1), i * imageResolution, j * imageResolution, imageResolution, imageResolution);
+                            g.DrawRectangle(new Pen(Color.DarkGray, (float)1), i * imageResolution, j * imageResolution, imageResolution, imageResolution);
                         }
                     }
                     if (mapdata[i, j] == 2)
                     {
                         g.FillRectangle(new SolidBrush(Color.FromArgb(128, Color.LightGreen)), i * imageResolution, j * imageResolution, imageResolution, imageResolution);
-                        if (checkBox2.Checked == true) { g.DrawRectangle(new Pen(Color.Black, (float)1), i * imageResolution, j * imageResolution, imageResolution, imageResolution); }
+                        if (checkBox2.Checked == true) { g.DrawRectangle(new Pen(Color.DarkGray, (float)1), i * imageResolution, j * imageResolution, imageResolution, imageResolution); }
                     }
                 }
             }
@@ -98,18 +98,6 @@ namespace CXACleanerUI
                     pictureBox1.Image = map;
                 }
             }
-            /*
-            if (mousedown == true) {
-                int Y = (int)(e.X / imageResolution);
-                int X = (int)(e.Y / imageResolution);
-                if (dragarea[Y, X] == 0) {
-                    dragarea[Y, X] = 1;
-                }
-                Graphics g = Graphics.FromImage(map);
-                g.FillRectangle(Brushes.Red, e.X, e.Y, 3, 3);
-                pictureBox1.Image = map;
-            }
-            */
         }
 
         private void pictureBox1_MouseUp(object sender, MouseEventArgs e)
@@ -134,22 +122,6 @@ namespace CXACleanerUI
                     mouseStart = new Point(-1, -1);
                 }
             }
-            /*
-                mousedown = false;
-                for (int i = 0; i < 3; i++)
-                {
-                    for (int j = 0; j < 4; j++)
-                    {
-                        if (dragarea[i, j] == 1)
-                        {
-                            if (mapdata[i, j] == 1) { mapdata[i, j] = 2; }
-                            else if (mapdata[i, j] == 2) { mapdata[i, j] = 1; }
-                        }
-                    }
-                }
-                dragarea = new int[3, 4];
-                RefreshImage();
-                */
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -163,8 +135,6 @@ namespace CXACleanerUI
                 dragarea = new int[mapdata.GetLength(0), mapdata.GetLength(1)];
                 RefreshImage();
             }
-            //var imagefromfile = new Bitmap(imageFileName);
-            //pictureBox1.Size = new Size(imagefromfile.Width + 2 * imageResolution, imagefromfile.Height + 2 * imageResolution);
         }
         private void radioButton1_Click(object sender, EventArgs e)
         {
