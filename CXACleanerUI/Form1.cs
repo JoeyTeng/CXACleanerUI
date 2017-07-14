@@ -187,5 +187,10 @@ namespace CXACleanerUI
         {
             toolStripStatusLabel1.Text = "Ready.";
         }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            new Form2().Visible = true;
+        }
     }
 }

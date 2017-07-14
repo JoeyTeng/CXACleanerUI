@@ -6,3 +6,4 @@ c:\users\tianzhen\documents\visual studio 2015\Projects\CXACleanerUI\CXACleanerU
 c:\users\tianzhen\documents\visual studio 2015\Projects\CXACleanerUI\CXACleanerUI\obj\Debug\CXACleanerUI.csproj.GenerateResource.Cache
 c:\users\tianzhen\documents\visual studio 2015\Projects\CXACleanerUI\CXACleanerUI\obj\Debug\CXACleanerUI.exe
 c:\users\tianzhen\documents\visual studio 2015\Projects\CXACleanerUI\CXACleanerUI\obj\Debug\CXACleanerUI.pdb
+C:\Users\Tianzhen\Documents\Visual Studio 2015\Projects\CXACleanerUI\CXACleanerUI\obj\Debug\CXACleanerUI.Form2.resources
