@@ -149,7 +149,7 @@ namespace RoutingApplication {
             Coordinate next;
             next = current + RoutingConstants.MOVE_INCREMENT[direction];
 
-            if (MappingConstants.Unblocked(map, next) && ((!selectedOnly || MappingConstants.Selected(map, next)) && MappingConstants.Unplanned(map, next)) && (selectedOnly || ignoreFlags || (MappingConstants.Unplanned(map, next) && MappingConstants.Unclean(map, next)))) {
+            if (MappingConstants.Unblocked(map, next) && (!selectedOnly || MappingConstants.Selected(map, next)) && (ignoreFlags || MappingConstants.Unplanned(map, next)) && (ignoreFlags || selectedOnly || MappingConstants.Unclean(map, next))) {
                 nextPoint = next;
                 return true;
             } else {
@@ -183,7 +183,7 @@ namespace RoutingApplication {
 
         public static void ClearPlan(MapNode[,] map) {
             for (int i = 0; i < map.GetLength(0); ++i) {
-                for (int j = 0; j < map.GetLength(0); ++j) {
+                for (int j = 0; j < map.GetLength(1); ++j) {
                     Constants.MappingConstants.Unplan(map, new Coordinate(i, j));
                 }
             }
