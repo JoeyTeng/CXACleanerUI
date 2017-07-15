@@ -73,11 +73,11 @@ namespace RoutingApplication {
         }
 
         public static bool operator==(Coordinate lhs, Coordinate rhs) {
-            return (lhs.x == rhs.x) && (lhs.y == rhs.y);
+            return lhs.Equals(rhs);
         }
 
         public static bool operator!=(Coordinate lhs, Coordinate rhs) {
-            return (lhs.x != rhs.x) || (lhs.y != rhs.y);
+            return !lhs.Equals(rhs);
         }
 
         public int ManhattanDistance(Coordinate destination) {
@@ -191,7 +191,7 @@ namespace RoutingApplication {
 
         public static void ClearPlan(MapNode[,] map) {
             for (int i = 0; i < map.GetLength(0); ++i) {
-                for (int j = 0; j < map.GetLength(0); ++j) {
+                for (int j = 0; j < map.GetLength(1); ++j) {
                     Constants.MappingConstants.Unplan(map, new Coordinate(i, j));
                 }
             }
