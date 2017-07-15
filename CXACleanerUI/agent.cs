@@ -15,7 +15,7 @@ namespace AgentApplication {
         public int _serialNumber;
         private int facingDirection;
         private int oldDirection;
-        private RoutingApplication.Coordinate currectPosition;
+        private RoutingApplication.Coordinate currentPosition;
         private RoutingApplication.Coordinate tentativePosition;
         private RoutingApplication.RouteNode[] _route;
 
@@ -23,7 +23,7 @@ namespace AgentApplication {
 
         public Agent() {
             _serialNumber = -1;
-            route = null;
+            _route = null;
             chargerPosition = null;
         }
 
@@ -80,7 +80,7 @@ namespace AgentApplication {
                 route_[i] = route.Pop();
             }
 
-            this.oldDirection = current;
+            this.oldDirection = currentDirection;
 
             return route_;
         }
@@ -96,8 +96,8 @@ namespace AgentApplication {
             this.facingDirection = route[0].direction;
             this.oldDirection = this.facingDirection;
 
-            this.tentativePosition = this.currectPosition;
-            for (RoutingApplication.RouteNode node in this._route) {
+            this.tentativePosition = this.currentPosition;
+            foreach (RoutingApplication.RouteNode node in this._route) {
                 this.tentativePosition = this.tentativePosition + Constants.RoutingConstants.MOVE_INCREMENT[node.direction] * node.steps;
             }
         }
@@ -122,20 +122,26 @@ namespace AgentApplication {
         }
 
         public void UpdatePosition(RoutingApplication.Coordinate position) {
+            this.currentPosition = position;
             this.chargerPosition = position;
         }
 
         public void UpdatePosition(MapNode[,] map, RoutingApplication.Coordinate position) {
+            this.currentPosition = position;
             this.chargerPosition = position;
             for (int i = position.x + position.y; i < map.Length; ++i) {
                 for (int j = position.x; i - j >= position.y; ++j) {
-                    if (Constants.Unblocked(map, new RoutingApplication.Coordinate(j, i - j)) && Constants.Unplanned(map, new RoutingApplication.Coordinate(j, i - j))) {
+                    if (Constants.MappingConstants.Unblocked(map, new RoutingApplication.Coordinate(j, i - j)) && Constants.MappingConstants.Unplanned(map, new RoutingApplication.Coordinate(j, i - j))) {
                         this.chargerPosition = new RoutingApplication.Coordinate(j, i - j);
+                        this.currentPosition = new RoutingApplication.Coordinate(this.chargerPosition);
 
                         return;
                     }
                 }
             }
+        }
+
+        public void BackToCharger() {
         }
 
         public void Commit(MapNode[,] map) {}

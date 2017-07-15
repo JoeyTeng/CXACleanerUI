@@ -193,9 +193,6 @@ namespace RoutingApplication {
             for (int i = 0; i < map.GetLength(0); ++i) {
                 for (int j = 0; j < map.GetLength(0); ++j) {
                     Constants.MappingConstants.Unplan(map, new Coordinate(i, j));
-                    if (MappingConstants.Planned(map, new Coordinate(i, j))) {
-                        System.Console.WriteLine("WARNING!!!!")
-                    }
                 }
             }
         }
