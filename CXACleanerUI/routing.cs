@@ -190,7 +190,8 @@ namespace RoutingApplication {
 /// Public
 
         public static bool CheckNext(MapNode[,] map, Coordinate current, int direction, bool ignoreFlags = false, bool selectedOnly = false) {
-            return CheckNextStep(map, current, direction, out new Coordinate(), ignoreFlags: ignoreFlags, selectedOnly: selectedOnly);
+            Coordinate _tmp = new Coordinate();
+            return CheckNextStep(map, current, direction, out _tmp, ignoreFlags: ignoreFlags, selectedOnly: selectedOnly);
         }
 
         public static void ClearPlan(MapNode[,] map) {

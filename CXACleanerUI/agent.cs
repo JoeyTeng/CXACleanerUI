@@ -12,13 +12,14 @@ namespace AgentApplication {
     using MapNode = System.Int32;
 
     class Agent {
-        private int facingDirection;
+        private int tentativeDirection;
         private int oldDirection;
         private RoutingApplication.Coordinate currentPosition;
         private RoutingApplication.Coordinate tentativePosition;
         private RoutingApplication.RouteNode[] _route;
 
         public int _serialNumber;
+        public int facingDirection;
         public int chargerDirection;
         public bool initialized;
         public RoutingApplication.Coordinate chargerPosition;
@@ -32,6 +33,7 @@ namespace AgentApplication {
         public Agent(int serialNumber, RoutingApplication.Coordinate _chargerPosition = null, int _facingDirection = -1) {
             this._serialNumber = serialNumber;
             this.facingDirection = _facingDirection;
+            this.tentativeDirection = this.facingDirection;
             this.oldDirection = -1;
             this.chargerDirection = -1;
 
@@ -52,7 +54,7 @@ namespace AgentApplication {
         public RoutingApplication.RouteNode[] Decode(string commands, int finalDirection) {
             System.Collections.Generic.Stack<RoutingApplication.RouteNode> route = new System.Collections.Generic.Stack<RoutingApplication.RouteNode>();
 
-            this.facingDirection = finalDirection;
+            this.tentativeDirection = finalDirection;
             int currentDirection = finalDirection;
             for (int j = commands.Length; j > 0; --j) {
                 int i = j - 1;
@@ -91,6 +93,8 @@ namespace AgentApplication {
 
             this.oldDirection = currentDirection;
 
+            this.facingDirection = currentDirection;
+
             return route_;
         }
 
@@ -119,7 +123,7 @@ namespace AgentApplication {
 
         public string Transport() {
             string commands = "";
-            oldDirection = facingDirection;
+            this.oldDirection = this.facingDirection;
 
             foreach (RoutingApplication.RouteNode i in route) {
                 if (((i.direction ^ this.facingDirection) & 1) == 0) {
@@ -132,11 +136,16 @@ namespace AgentApplication {
                     }
                 }
             }
+            this.tentativeDirection = this.facingDirection;
+            this.facingDirection = this.oldDirection;
 
             return commands + '\n';
         }
 
-        public void UpdateChargerPosition(RoutingApplication.Coordinate position = new RoutingApplication.Coordinate(-1, -1), int direction = -1) {
+        public void UpdateChargerPosition(RoutingApplication.Coordinate position = null, int direction = -1) {
+            if (position == null) {
+                position = new RoutingApplication.Coordinate(-1, -1);
+            }
             if (position.x != -1) {
                 this.chargerPosition = position;
             }
@@ -145,6 +154,7 @@ namespace AgentApplication {
             }
             this.initialized = true;
         }
+
         public void UpdatePosition(RoutingApplication.Coordinate position) {
             this.currentPosition = position;
         }
@@ -166,7 +176,7 @@ namespace AgentApplication {
             if (currentDirection == targetDirection) {
                 return new RoutingApplication.RouteNode[0];
             }
-            if ((currentDirection ^ targetDirection) & 1 == 0) {
+            if (((currentDirection ^ targetDirection) & 1) == 0) {
                 /// Opposite direction
                 RoutingApplication.RouteNode[] route = new RoutingApplication.RouteNode[] {new RoutingApplication.RouteNode(currentDirection ^ 3, 1), new RoutingApplication.RouteNode(currentDirection ^ 2, 1), new RoutingApplication.RouteNode(currentDirection ^ 1, 1), new RoutingApplication.RouteNode(currentDirection ^ 2, 1), new RoutingApplication.RouteNode(currentDirection, 2)};
                 /// Check route
@@ -183,9 +193,19 @@ namespace AgentApplication {
                 System.Console.WriteLine("Warning: Last route have not completed yet.");
             }
 
-            this.UpdateRoute(RoutingApplication.Routing.AStar(map, this.currentPosition, destination));
-            /// TODO: this.Rotate(this.oldDirection, this.currentDirection);
+            RoutingApplication.RouteNode[] route = RoutingApplication.Routing.AStar(map, this.currentPosition, destination);
+            RoutingApplication.RouteNode[] rotate = this.Rotate(this.facingDirection, this.chargerDirection);
+            RoutingApplication.RouteNode[] _route = new RoutingApplication.RouteNode[route.Length + rotate.Length];
+            for (int i = 0; i < route.Length; ++i) {
+                _route[i] = route[i];
+            }
+            for (int i = 0; i < rotate.Length; ++i) {
+                _route[i + route.Length] = rotate[i];
+            }
+
+            this.UpdateRoute(_route);
         }
+
         public void BackToCharger(MapNode[,] map) {
             this.NavigateTo(map, this.chargerPosition);
         }
@@ -205,6 +225,8 @@ namespace AgentApplication {
                 System.Console.WriteLine("Warning: Different tentativePosition with calculated position.");
                 this.currentPosition = this.tentativePosition;
             }
+            this.facingDirection = this.tentativeDirection;
+            this.oldDirection = this.facingDirection;
             this.ClearRoute();
         }
     }
