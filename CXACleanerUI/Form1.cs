@@ -270,7 +270,7 @@ namespace CXACleanerUI
             stream.Flush();
             foreach (AgentApplication.Agent a in agentlist)
             {
-                sendText = System.Text.Encoding.ASCII.GetBytes(a.Transport() + "|" + a.facingDirection);
+                sendText = System.Text.Encoding.ASCII.GetBytes(a.Transport() + a.facingDirection);
                 stream.Write(sendText, 0, sendText.Length);
                 stream.Flush();
                 inText = new byte[1024];
@@ -282,6 +282,27 @@ namespace CXACleanerUI
             byte[] exitText = System.Text.Encoding.ASCII.GetBytes("exit");
             stream.Write(exitText, 0, exitText.Length);
             stream.Flush();
+        }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+            if (DialogResult.OK == MessageBox.Show(this, "This action will send intructions to available agents. Continue?", "Notice", MessageBoxButtons.OKCancel, MessageBoxIcon.Question)) {
+                if (agentlist.Count == 0) {
+                    MessageBox.Show(this, "No agent has been assigned.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+                TcpClient client = new TcpClient();
+                client.Connect("192.168.1.101", 1234);
+                NetworkStream stream = client.GetStream();
+                byte[] sendText = System.Text.Encoding.ASCII.GetBytes("applytransport:" + agentlist[0].Transport());
+                stream.Write(sendText, 0, sendText.Length);
+                stream.Flush();
+                byte[] inText = new byte[1024];
+                stream.Read(inText, 0, inText.Length);
+                byte[] exitText = System.Text.Encoding.ASCII.GetBytes("exit");
+                stream.Write(exitText, 0, exitText.Length);
+                stream.Flush();
+            }
         }
     }
 }
