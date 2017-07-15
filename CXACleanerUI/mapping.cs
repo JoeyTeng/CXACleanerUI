@@ -163,7 +163,7 @@ namespace CXACleanerUI {
             RoutingApplication.RouteNode[] route;
             RoutingApplication.Routing.RouteSnakeShape(map, initPoint, out endPoint, out route, ignoreFlags: ignoreFlags, selectedOnly: selectedOnly);
 
-            System.Console.WriteLine(String.Format("\nFindPath: {0}\n", route == null));
+            System.Console.WriteLine(String.Format("\nFindPath: {0}\n", route != null));
 
             //System.Console.WriteLine("{0} {1}\n", endPoint.x, endPoint.y);
 

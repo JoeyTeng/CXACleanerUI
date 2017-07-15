@@ -35,8 +35,18 @@ namespace AgentApplication {
             }
         }
 
-        private char encode(int direction) {
+        private char Encode(int direction) {
             return Constants.AgentConstants.CODE[facingDirection, direction];
+        }
+
+        public RoutingApplication.RouteNode[] Decode(string commands) {
+            RoutingApplication.RouteNode[] route = new RoutingApplication.RouteNode[commands.Length];
+
+            for (int i = 0; i < commands.Length; ++i) {
+                switch (commands[i]) {
+                    case
+                }
+            }
         }
 
 /// Public
@@ -51,13 +61,17 @@ namespace AgentApplication {
 
             foreach (RoutingApplication.RouteNode i in route) {
                 if ((i.direction ^ this.facingDirection & 1) == 0) {
-                    commands += this.encode(i.direction) + i.steps;
+                    commands += this.Encode(i.direction) + i.steps;
                 } else {
-                    commands += this.encode(i.direction);
+                    commands += this.Encode(i.direction);
                     this.facingDirection = i.direction;
                 }
             }
+<<<<<<< Updated upstream
             System.Console.WriteLine(commands);
+=======
+
+>>>>>>> Stashed changes
             return commands + '\n';
         }
 
