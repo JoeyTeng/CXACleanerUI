@@ -42,6 +42,7 @@ namespace AgentApplication {
 /// Public
         public void UpdateRoute(RoutingApplication.RouteNode[] _route) {
             route = _route;
+            this.facingDirection = route[0].direction;
         }
 
         public string Transport() {
@@ -56,8 +57,8 @@ namespace AgentApplication {
                     this.facingDirection = i.direction;
                 }
             }
-
-            return commands;
+            System.Console.WriteLine(commands);
+            return commands + '\n';
         }
 
         public void Commit(MapNode[,] map) {}

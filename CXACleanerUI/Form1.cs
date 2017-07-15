@@ -112,7 +112,8 @@ namespace CXACleanerUI
                 if (checkBox3.Checked) {
                     agentlist.Add(new AgentApplication.Agent(agentlist.Count + 1, new RoutingApplication.Coordinate((int)(e.X / imageResolution), (int)(e.Y / imageResolution))));
                     RoutingApplication.RouteNode[] route = Mapping.FindPath(mapdata, (int)(e.X / imageResolution), (int)(e.Y / imageResolution), selectedOnly: true);
-                    agentlist[agentlist.Count - 1].UpdateRoute(route);
+                    if (route == null) { agentlist.RemoveAt(agentlist.Count - 1); }
+                    else { agentlist[agentlist.Count - 1].UpdateRoute(route); }
                     RefreshImage();
                 }
                 else if (radioButton1.Checked)
@@ -228,7 +229,7 @@ namespace CXACleanerUI
         {
             string input = Microsoft.VisualBasic.Interaction.InputBox("Input a map name:", "Save as...", "New Map 1", -1, -1);
             TcpClient client = new TcpClient();
-            client.Connect("192.168.1.101", 12345);
+            client.Connect("192.168.1.101", 1234);
             NetworkStream stream = client.GetStream();
             byte[] sendText = System.Text.Encoding.ASCII.GetBytes("uploadmapdata:" + input);
             stream.Write(sendText, 0, sendText.Length);
@@ -259,6 +260,17 @@ namespace CXACleanerUI
                 }
                 sb += "\n";
                 sendText = System.Text.Encoding.ASCII.GetBytes(sb);
+                stream.Write(sendText, 0, sendText.Length);
+                stream.Flush();
+                inText = new byte[1024];
+                stream.Read(inText, 0, inText.Length);
+            }
+            sendText = System.Text.Encoding.ASCII.GetBytes("END");
+            stream.Write(sendText, 0, sendText.Length);
+            stream.Flush();
+            foreach (AgentApplication.Agent a in agentlist)
+            {
+                sendText = System.Text.Encoding.ASCII.GetBytes(a.Transport());
                 stream.Write(sendText, 0, sendText.Length);
                 stream.Flush();
                 inText = new byte[1024];
