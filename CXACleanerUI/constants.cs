@@ -125,11 +125,17 @@ namespace Constants {
     }
 
     class AgentConstants {
-        public static char [,] CODE = new char[,] {
-            {(char)64, (char)41, (char)96, (char)40}, /// Forward, Turn Right, Backward, Turn Left
-            {(char)40, (char)64, (char)41, (char)96},
-            {(char)96, (char)40, (char)64, (char)41},
-            {(char)41, (char)96, (char)40, (char)64}
+        public static int[,] CODE = new int[,] {
+            {64, 41, 96, 40}, /// Forward, Turn Right, Backward, Turn Left
+            {40, 64, 41, 96},
+            {96, 40, 64, 41},
+            {41, 96, 40, 64}
+        };
+        public static int[,] DECODE = new int[,] {
+            {1, 3, 2, 0}, ///0 <= 40, 41, 96, 64
+            {2, 0, 3, 1},
+            {3, 1, 0, 2},
+            {0, 2, 1, 3}
         };
     }
 }
