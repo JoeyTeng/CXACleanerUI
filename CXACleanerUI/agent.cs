@@ -16,7 +16,8 @@ namespace AgentApplication {
         private int facingDirection;
         private int oldDirection;
         private RoutingApplication.Coordinate currectPosition;
-        public RoutingApplication.RouteNode[] route;
+        private RoutingApplication.Coordinate tentativePosition;
+        private RoutingApplication.RouteNode[] _route;
 
         public RoutingApplication.Coordinate chargerPosition;
 
@@ -78,13 +79,27 @@ namespace AgentApplication {
             for (int i = 0; i < route_.Length; ++i) {
                 route_[i] = route.Pop();
             }
+
+            this.oldDirection = current;
+
             return route_;
         }
 
 /// Public
-        public void UpdateRoute(RoutingApplication.RouteNode[] _route) {
-            route = _route;
+        public RoutingApplication.RouteNode[] route {
+            get {
+                return _route;
+            }
+        }
+        public void UpdateRoute(RoutingApplication.RouteNode[] route) {
+            this._route = route;
             this.facingDirection = route[0].direction;
+            this.oldDirection = this.facingDirection;
+
+            this.tentativePosition = this.currectPosition;
+            for (RoutingApplication.RouteNode node in this._route) {
+                this.tentativePosition = this.tentativePosition + Constants.RoutingConstants.MOVE_INCREMENT[node.direction] * node.steps;
+            }
         }
 
         public string Transport() {
@@ -92,7 +107,6 @@ namespace AgentApplication {
             oldDirection = facingDirection;
 
             foreach (RoutingApplication.RouteNode i in route) {
-                System.Console.WriteLine("C: {0} {1}", i.direction, i.steps);
                 if (((i.direction ^ this.facingDirection) & 1) == 0) {
                     commands += (char)(this.Encode(i.direction) + i.steps);
                 } else {
@@ -103,13 +117,25 @@ namespace AgentApplication {
                     }
                 }
             }
-            System.Console.WriteLine(commands);
-
-            foreach (RoutingApplication.RouteNode i in Decode(commands, this.facingDirection)) {
-                System.Console.WriteLine("D: {0} {1}", i.direction, i.steps);
-            }
 
             return commands + '\n';
+        }
+
+        public void UpdatePosition(RoutingApplication.Coordinate position) {
+            this.chargerPosition = position;
+        }
+
+        public void UpdatePosition(MapNode[,] map, RoutingApplication.Coordinate position) {
+            this.chargerPosition = position;
+            for (int i = position.x + position.y; i < map.Length; ++i) {
+                for (int j = position.x; i - j >= position.y; ++j) {
+                    if (Constants.Unblocked(map, new RoutingApplication.Coordinate(j, i - j)) && Constants.Unplanned(map, new RoutingApplication.Coordinate(j, i - j))) {
+                        this.chargerPosition = new RoutingApplication.Coordinate(j, i - j);
+
+                        return;
+                    }
+                }
+            }
         }
 
         public void Commit(MapNode[,] map) {}

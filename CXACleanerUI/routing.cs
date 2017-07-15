@@ -53,6 +53,14 @@ namespace RoutingApplication {
             return result;
         }
 
+        public static Coordinate operator*(Coordinate lhs, int rhs) {
+            Coordinate result = new Coordinate();
+            result.x = lhs.x * rhs;
+            result.y = lhs.y * rhs;
+
+            return result;
+        }
+
         public override bool Equals(object obj) {
             if (obj == null || obj.GetType() != this.GetType()) {
                 return false;
@@ -65,11 +73,11 @@ namespace RoutingApplication {
         }
 
         public static bool operator==(Coordinate lhs, Coordinate rhs) {
-            return lhs.Equals(rhs);
+            return (lhs.x == rhs.x) && (lhs.y == rhs.y);
         }
 
         public static bool operator!=(Coordinate lhs, Coordinate rhs) {
-            return !lhs.Equals(rhs);
+            return (lhs.x != rhs.x) || (lhs.y != rhs.y);
         }
 
         public int ManhattanDistance(Coordinate destination) {
@@ -149,7 +157,7 @@ namespace RoutingApplication {
             Coordinate next;
             next = current + RoutingConstants.MOVE_INCREMENT[direction];
 
-            if (MappingConstants.Unblocked(map, next) && (!selectedOnly || MappingConstants.Selected(map, next)) && (ignoreFlags || MappingConstants.Unplanned(map, next)) && (ignoreFlags || selectedOnly || MappingConstants.Unclean(map, next))) {
+            if (MappingConstants.Unblocked(map, next) && ((!selectedOnly || MappingConstants.Selected(map, next)) && MappingConstants.Unplanned(map, next)) && (selectedOnly || ignoreFlags || (MappingConstants.Unplanned(map, next) && MappingConstants.Unclean(map, next)))) {
                 nextPoint = next;
                 return true;
             } else {
@@ -183,8 +191,11 @@ namespace RoutingApplication {
 
         public static void ClearPlan(MapNode[,] map) {
             for (int i = 0; i < map.GetLength(0); ++i) {
-                for (int j = 0; j < map.GetLength(1); ++j) {
+                for (int j = 0; j < map.GetLength(0); ++j) {
                     Constants.MappingConstants.Unplan(map, new Coordinate(i, j));
+                    if (MappingConstants.Planned(map, new Coordinate(i, j))) {
+                        System.Console.WriteLine("WARNING!!!!")
+                    }
                 }
             }
         }
