@@ -189,6 +189,10 @@ namespace RoutingApplication {
         }
 /// Public
 
+        public static bool CheckNext(MapNode[,] map, Coordinate current, int direction, bool ignoreFlags = false, bool selectedOnly = false) {
+            return CheckNextStep(map, current, direction, out new Coordinate(), ignoreFlags: ignoreFlags, selectedOnly: selectedOnly);
+        }
+
         public static void ClearPlan(MapNode[,] map) {
             for (int i = 0; i < map.GetLength(0); ++i) {
                 for (int j = 0; j < map.GetLength(1); ++j) {
@@ -197,8 +201,6 @@ namespace RoutingApplication {
             }
         }
         public static RouteNode[] AStar(MapNode[,] map, Coordinate initPoint, Coordinate destination) {
-            System.Console.WriteLine("{0} {1} => {2} {3}", initPoint.x, initPoint.y, destination.x, destination.y);
-
             int estimatedCount = 0;
             System.Collections.Hashtable estimatedPoints = new System.Collections.Hashtable();
             int estimatingCount = 0;

@@ -88,6 +88,10 @@ namespace Constants {
             return (map[position.x, position.y] & (CLEAN_MASK << CLEAN_SHIFT)) == (CLEAN << CLEAN_SHIFT);
         }
 
+        public static void Cleaning(MapNode[,] map, RoutingApplication.Coordinate position) {
+            map[position.x, position.y] |= (CLEAN << CLEAN_SHIFT);
+        }
+
         public static bool Dirty(MapNode[,] map, RoutingApplication.Coordinate position) {
             return (map[position.x, position.y] & (CLEAN_MASK << CLEAN_SHIFT)) == (UNCLEAN << CLEAN_SHIFT);
         }

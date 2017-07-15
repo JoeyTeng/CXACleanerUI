@@ -12,13 +12,15 @@ namespace AgentApplication {
     using MapNode = System.Int32;
 
     class Agent {
-        public int _serialNumber;
-        public int facingDirection;
+        private int facingDirection;
         private int oldDirection;
         private RoutingApplication.Coordinate currentPosition;
         private RoutingApplication.Coordinate tentativePosition;
         private RoutingApplication.RouteNode[] _route;
 
+        public int _serialNumber;
+        public int chargerDirection;
+        public bool initialized;
         public RoutingApplication.Coordinate chargerPosition;
 
         public Agent() {
@@ -30,6 +32,8 @@ namespace AgentApplication {
         public Agent(int serialNumber, RoutingApplication.Coordinate _chargerPosition = null, int _facingDirection = -1) {
             this._serialNumber = serialNumber;
             this.facingDirection = _facingDirection;
+            this.oldDirection = -1;
+            this.chargerDirection = -1;
 
             if (_chargerPosition != null) {
                 this.chargerPosition = new RoutingApplication.Coordinate(_chargerPosition);
@@ -38,7 +42,9 @@ namespace AgentApplication {
             }
             this.currentPosition = new RoutingApplication.Coordinate(this.chargerPosition);
         }
-
+        private void ClearRoute() {
+            this._route = null;
+        }
         private int Encode(int direction) {
             return Constants.AgentConstants.CODE[facingDirection, direction];
         }
@@ -94,10 +100,16 @@ namespace AgentApplication {
                 return _route;
             }
         }
+
         public void UpdateRoute(RoutingApplication.RouteNode[] route) {
             this._route = route;
-            this.facingDirection = route[0].direction;
             this.oldDirection = this.facingDirection;
+            this.facingDirection = route[0].direction;
+            if (!this.initialized) {
+                this.chargerPosition = new RoutingApplication.Coordinate(this.currentPosition);
+                this.chargerDirection = this.facingDirection;
+                this.initialized = true;
+            }
 
             this.tentativePosition = new RoutingApplication.Coordinate(this.currentPosition);
             foreach (RoutingApplication.RouteNode node in this._route) {
@@ -124,18 +136,24 @@ namespace AgentApplication {
             return commands + '\n';
         }
 
+        public void UpdateChargerPosition(RoutingApplication.Coordinate position = new RoutingApplication.Coordinate(-1, -1), int direction = -1) {
+            if (position.x != -1) {
+                this.chargerPosition = position;
+            }
+            if (direction != -1) {
+                this.chargerDirection = direction;
+            }
+            this.initialized = true;
+        }
         public void UpdatePosition(RoutingApplication.Coordinate position) {
             this.currentPosition = position;
-            this.chargerPosition = position;
         }
 
         public void UpdatePosition(MapNode[,] map, RoutingApplication.Coordinate position) {
             this.currentPosition = position;
-            this.chargerPosition = position;
             for (int i = position.x + position.y; i < map.Length; ++i) {
                 for (int j = position.x; i - j >= position.y; ++j) {
                     if (Constants.MappingConstants.Unblocked(map, new RoutingApplication.Coordinate(j, i - j)) && Constants.MappingConstants.Unplanned(map, new RoutingApplication.Coordinate(j, i - j))) {
-                        this.chargerPosition = new RoutingApplication.Coordinate(j, i - j);
                         this.currentPosition = new RoutingApplication.Coordinate(this.chargerPosition);
 
                         return;
@@ -144,10 +162,50 @@ namespace AgentApplication {
             }
         }
 
-        public void BackToCharger() {
-            // RoutingApplication.AStar()
+        public RoutingApplication.RouteNode[] Rotate(int currentDirection, int targetDirection) {
+            if (currentDirection == targetDirection) {
+                return new RoutingApplication.RouteNode[0];
+            }
+            if ((currentDirection ^ targetDirection) & 1 == 0) {
+                /// Opposite direction
+                RoutingApplication.RouteNode[] route = new RoutingApplication.RouteNode[] {new RoutingApplication.RouteNode(currentDirection ^ 3, 1), new RoutingApplication.RouteNode(currentDirection ^ 2, 1), new RoutingApplication.RouteNode(currentDirection ^ 1, 1), new RoutingApplication.RouteNode(currentDirection ^ 2, 1), new RoutingApplication.RouteNode(currentDirection, 2)};
+                /// Check route
+                return route;
+            } else {
+                RoutingApplication.RouteNode[] route = new RoutingApplication.RouteNode[] {new RoutingApplication.RouteNode(targetDirection, 1), new RoutingApplication.RouteNode(targetDirection ^ 1, 1)};
+
+                return route;
+            }
         }
 
-        public void Commit(MapNode[,] map) {}
+        public void NavigateTo(MapNode[,] map, RoutingApplication.Coordinate destination) {
+            if (this.tentativePosition != this.currentPosition) {
+                System.Console.WriteLine("Warning: Last route have not completed yet.");
+            }
+
+            this.UpdateRoute(RoutingApplication.Routing.AStar(map, this.currentPosition, destination));
+            /// TODO: this.Rotate(this.oldDirection, this.currentDirection);
+        }
+        public void BackToCharger(MapNode[,] map) {
+            this.NavigateTo(map, this.chargerPosition);
+        }
+
+        public void Commit(MapNode[,] map) {
+            RoutingApplication.Coordinate position = new RoutingApplication.Coordinate(this.currentPosition);
+
+            foreach (RoutingApplication.RouteNode node in this.route) {
+                for (int i = 0; i < node.steps; ++i) {
+                    Constants.MappingConstants.Cleaning(map, currentPosition);
+                    currentPosition = currentPosition + Constants.RoutingConstants.MOVE_INCREMENT[node.direction];
+                }
+            }
+            if (position == this.tentativePosition) {
+                this.currentPosition = position;
+            } else {
+                System.Console.WriteLine("Warning: Different tentativePosition with calculated position.");
+                this.currentPosition = this.tentativePosition;
+            }
+            this.ClearRoute();
+        }
     }
 }
