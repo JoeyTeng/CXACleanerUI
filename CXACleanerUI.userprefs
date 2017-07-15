@@ -1,7 +1,10 @@
 ﻿<Properties StartupConfiguration="{BCE35AC1-57B2-4910-8FCB-358E2A8AC5FE}|Default">
-  <MonoDevelop.Ide.Workbench ActiveDocument="CXACleanerUI/test.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="cxa-cleaner-ui Status">
     <Files>
-      <File FileName="CXACleanerUI/test.cs" Line="25" Column="127" />
+      <File FileName="CXACleanerUI/test.cs" Line="31" Column="1" />
+      <File FileName="CXACleanerUI/routing.cs" Line="25" Column="23" />
+      <File FileName="CXACleanerUI/Program.cs" Line="17" Column="1" />
+      <File FileName="cxa-cleaner-ui Status" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
