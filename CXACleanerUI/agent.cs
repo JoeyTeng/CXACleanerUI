@@ -13,7 +13,7 @@ namespace AgentApplication {
 
     class Agent {
         public int _serialNumber;
-        private int facingDirection;
+        public int facingDirection;
         private int oldDirection;
         private RoutingApplication.Coordinate currentPosition;
         private RoutingApplication.Coordinate tentativePosition;

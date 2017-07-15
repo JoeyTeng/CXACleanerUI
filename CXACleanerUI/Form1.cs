@@ -270,7 +270,7 @@ namespace CXACleanerUI
             stream.Flush();
             foreach (AgentApplication.Agent a in agentlist)
             {
-                sendText = System.Text.Encoding.ASCII.GetBytes(a.Transport());
+                sendText = System.Text.Encoding.ASCII.GetBytes(a.Transport() + "|" + a.facingDirection);
                 stream.Write(sendText, 0, sendText.Length);
                 stream.Flush();
                 inText = new byte[1024];

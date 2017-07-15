@@ -14,7 +14,7 @@ namespace CXACleanerUI
     public partial class Form2 : Form
     {
         string host = "192.168.1.101";
-        int port = 12345;
+        int port = 1234;
         int[,] mapdata;
         public Form2(int[,] data)
         {
