@@ -7,6 +7,7 @@ using System.Text;
 using System.Windows.Forms;
 using System.Net.Sockets;
 using System.Threading;
+using System.IO;
 
 namespace CXACleanerUI
 {
@@ -98,7 +99,7 @@ namespace CXACleanerUI
             try
             {
                 var r = GetResponse("fetchmaplist");
-                Console.Write(r);
+                //Console.Write(r);
                 while (r.IndexOf("|") != -1) {
                     listBox1.Items.Add(r.Substring(0, r.IndexOf("|")));
                     r = r.Substring(r.IndexOf("|") + 1);
@@ -119,13 +120,22 @@ namespace CXACleanerUI
             {
                 var r = GetLongResponse("fetchmapinfo:" + listBox1.Items[listBox1.SelectedIndex]);
                 var tmp = r.Split('\n');
-                MessageBox.Show(this, r, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                var mapname = listBox1.Items[listBox1.SelectedIndex];
+                //MessageBox.Show(this, r, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                var mapname = listBox1.Items[listBox1.SelectedIndex].ToString();
                 var imagepath = tmp[0];
                 var resolution = Int32.Parse(tmp[1]);
                 var threshold = Int32.Parse(tmp[2]);
                 r = GetLongResponse("fetchmapdata:" + listBox1.Items[listBox1.SelectedIndex]);
-                MessageBox.Show(this, r, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                //MessageBox.Show(this, r, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                string[] lines = r.Split('\n');
+                int[,] mapdata = new int[lines.Length, lines[0].Split(' ').Length];
+                for (int i = 0; i < lines.Length - 1; i++) {
+                    string[] elements = lines[i].Split(' ');
+                    for (int j = 0; j < elements.Length - 1; j++) {
+                        mapdata[i, j] = Int32.Parse(elements[j]);
+                    }
+                }
+                new Form1(mapname, Directory.GetCurrentDirectory() + "/res/" + imagepath, resolution, threshold, mapdata).Visible = true;
             }
             catch (SocketException err)
             {

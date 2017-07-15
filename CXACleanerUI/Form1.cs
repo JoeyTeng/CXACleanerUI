@@ -10,6 +10,7 @@ using System.Windows.Forms;
 
 namespace CXACleanerUI
 {
+    using System.Net.Sockets;
     using MapNode = System.Int32;
     public partial class Form1 : Form
     {
@@ -20,9 +21,16 @@ namespace CXACleanerUI
         string imageFileName;
         int imageResolution;
         int threshold;
-        public Form1(string imagePath = null, int res = 15, int thr = 600, int[,] data = null)
+        public Form1(string mapname = null, string imagePath = null, int res = 15, int thr = 600, int[,] data = null)
         {
             InitializeComponent();
+            if (mapname == null)
+            {
+                this.Text = "New Map";
+            }
+            else {
+                this.Text = "Map - " + mapname;
+            }
             imageFileName = imagePath;
             textBox1.Text = res.ToString();
             imageResolution = res;
@@ -204,6 +212,54 @@ namespace CXACleanerUI
                 currentY += Constants.RoutingConstants.MOVE_INCREMENT[i.direction].y * i.steps;
             }
             pictureBox1.Image = pic;
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            string input = Microsoft.VisualBasic.Interaction.InputBox("Input a map name:", "Save as...", "New Map 1", -1, -1);
+            TcpClient client = new TcpClient();
+            client.Connect("192.168.1.101", 12345);
+            NetworkStream stream = client.GetStream();
+            byte[] sendText = System.Text.Encoding.ASCII.GetBytes("uploadmapdata:" + input);
+            stream.Write(sendText, 0, sendText.Length);
+            stream.Flush();
+            byte[] inText = new byte[1024];
+            stream.Read(inText, 0, inText.Length);
+            sendText = System.Text.Encoding.ASCII.GetBytes(imageFileName.Substring(imageFileName.LastIndexOf(@"\") + 1));
+            stream.Write(sendText, 0, sendText.Length);
+            stream.Flush();
+            inText = new byte[1024];
+            stream.Read(inText, 0, inText.Length);
+            sendText = System.Text.Encoding.ASCII.GetBytes(imageResolution.ToString());
+            stream.Write(sendText, 0, sendText.Length);
+            stream.Flush();
+            inText = new byte[1024];
+            stream.Read(inText, 0, inText.Length);
+            sendText = System.Text.Encoding.ASCII.GetBytes(threshold.ToString());
+            stream.Write(sendText, 0, sendText.Length);
+            stream.Flush();
+            inText = new byte[1024];
+            stream.Read(inText, 0, inText.Length);
+            for (int i = 0; i < mapdata.GetLength(0); ++i)
+            {
+                String sb = "";
+                for (int j = 0; j < mapdata.GetLength(1); ++j)
+                {
+                    sb += String.Format(" {0}", mapdata[i, j]);
+                }
+                sb += "\n";
+                sendText = System.Text.Encoding.ASCII.GetBytes(sb);
+                stream.Write(sendText, 0, sendText.Length);
+                stream.Flush();
+                inText = new byte[1024];
+                stream.Read(inText, 0, inText.Length);
+            }
+            sendText = System.Text.Encoding.ASCII.GetBytes("END");
+            stream.Write(sendText, 0, sendText.Length);
+            stream.Flush();
+            byte[] exitText = System.Text.Encoding.ASCII.GetBytes("exit");
+            stream.Write(exitText, 0, exitText.Length);
+            stream.Flush();
         }
     }
 }
