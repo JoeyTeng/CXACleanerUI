@@ -65,11 +65,11 @@ namespace RoutingApplication {
         }
 
         public static bool operator==(Coordinate lhs, Coordinate rhs) {
-            return (lhs.x == rhs.x) && (lhs.y == rhs.y);
+            return lhs.Equals(rhs);
         }
 
         public static bool operator!=(Coordinate lhs, Coordinate rhs) {
-            return (lhs.x != rhs.x) || (lhs.y != rhs.y);
+            return !lhs.Equals(rhs);
         }
 
         public int ManhattanDistance(Coordinate destination) {

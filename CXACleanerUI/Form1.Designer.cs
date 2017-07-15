@@ -47,8 +47,8 @@
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
-            this.button2 = new System.Windows.Forms.Button();
             this.button3 = new System.Windows.Forms.Button();
+            this.button2 = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -176,15 +176,15 @@
             // 
             // checkBox3
             // 
+            this.checkBox3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.checkBox3.Appearance = System.Windows.Forms.Appearance.Button;
             this.checkBox3.AutoSize = true;
-            this.checkBox3.Location = new System.Drawing.Point(665, 23);
+            this.checkBox3.Location = new System.Drawing.Point(658, 23);
             this.checkBox3.Name = "checkBox3";
-            this.checkBox3.Size = new System.Drawing.Size(86, 27);
+            this.checkBox3.Size = new System.Drawing.Size(93, 27);
             this.checkBox3.TabIndex = 8;
-            this.checkBox3.Text = "Start from...";
+            this.checkBox3.Text = "Assign agent";
             this.checkBox3.UseVisualStyleBackColor = true;
-            this.checkBox3.CheckedChanged += new System.EventHandler(this.checkBox3_CheckedChanged);
             // 
             // textBox2
             // 
@@ -287,16 +287,6 @@
             this.groupBox4.TabStop = false;
             this.groupBox4.Text = "Server";
             // 
-            // button2
-            // 
-            this.button2.Location = new System.Drawing.Point(6, 21);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(80, 25);
-            this.button2.TabIndex = 0;
-            this.button2.Text = "Load...";
-            this.button2.UseVisualStyleBackColor = true;
-            this.button2.Click += new System.EventHandler(this.button2_Click);
-            // 
             // button3
             // 
             this.button3.Location = new System.Drawing.Point(92, 21);
@@ -306,6 +296,16 @@
             this.button3.Text = "Save...";
             this.button3.UseVisualStyleBackColor = true;
             this.button3.Click += new System.EventHandler(this.button3_Click);
+            // 
+            // button2
+            // 
+            this.button2.Location = new System.Drawing.Point(6, 21);
+            this.button2.Name = "button2";
+            this.button2.Size = new System.Drawing.Size(80, 25);
+            this.button2.TabIndex = 0;
+            this.button2.Text = "Load...";
+            this.button2.UseVisualStyleBackColor = true;
+            this.button2.Click += new System.EventHandler(this.button2_Click);
             // 
             // Form1
             // 

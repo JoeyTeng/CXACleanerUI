@@ -21,6 +21,7 @@ namespace CXACleanerUI
         string imageFileName;
         int imageResolution;
         int threshold;
+        List<AgentApplication.Agent> agentlist =  new List<AgentApplication.Agent>();
         public Form1(string mapname = null, string imagePath = null, int res = 15, int thr = 600, int[,] data = null)
         {
             InitializeComponent();
@@ -76,6 +77,31 @@ namespace CXACleanerUI
                     }
                 }
             }
+            foreach (AgentApplication.Agent a in agentlist) {
+                RoutingApplication.RouteNode[] route = a.route;
+                Pen p = new Pen(Color.Orange);
+                GraphicsPath capPath = new GraphicsPath();
+                capPath.AddLine(0, 0, -4, -8);
+                capPath.AddLine(0, 0, 4, -8);
+                //capPath.AddLine(4, -4, 0, 5);
+                p.CustomEndCap = new CustomLineCap(null, capPath);
+                int currentX = a.chargerPosition.x; int currentY = a.chargerPosition.y;
+                if (route == null)
+                {
+                    pictureBox1.Image = map;
+                    continue;
+                }
+                g.DrawString(a._serialNumber.ToString(), new Font("Arial", (float)10), Brushes.Orange, (float)(0.5 + currentX) * imageResolution - 10, (float)(0.5 + currentY) * imageResolution - 10);
+                foreach (RoutingApplication.RouteNode i in route)
+                {
+                    g.DrawLine(p, (float)(0.5 + currentX) * imageResolution, (float)(0.5 + currentY) * imageResolution,
+                        (float)(0.5 + currentX + Constants.RoutingConstants.MOVE_INCREMENT[i.direction].x * i.steps) * imageResolution,
+                        (float)(0.5 + currentY + Constants.RoutingConstants.MOVE_INCREMENT[i.direction].y * i.steps) * imageResolution);
+                    currentX += Constants.RoutingConstants.MOVE_INCREMENT[i.direction].x * i.steps;
+                    currentY += Constants.RoutingConstants.MOVE_INCREMENT[i.direction].y * i.steps;
+                }
+                //pictureBox1.Image = map;
+            }
             pictureBox1.Image = map;
         }
 
@@ -83,7 +109,13 @@ namespace CXACleanerUI
         {
             if (imageFileName != null)
             {
-                if (radioButton1.Checked)
+                if (checkBox3.Checked) {
+                    agentlist.Add(new AgentApplication.Agent(agentlist.Count + 1, new RoutingApplication.Coordinate((int)(e.X / imageResolution), (int)(e.Y / imageResolution))));
+                    RoutingApplication.RouteNode[] route = Mapping.FindPath(mapdata, (int)(e.X / imageResolution), (int)(e.Y / imageResolution), selectedOnly: true);
+                    agentlist[agentlist.Count - 1].UpdateRoute(route);
+                    RefreshImage();
+                }
+                else if (radioButton1.Checked)
                 {
                     int X = (int)(e.X / imageResolution);
                     int Y = (int)(e.Y / imageResolution);
@@ -189,29 +221,7 @@ namespace CXACleanerUI
 
         private void checkBox3_CheckedChanged(object sender, EventArgs e)
         {
-            Image pic = pictureBox1.Image;
-            Graphics g = Graphics.FromImage(pic);
-            Pen p = new Pen(Color.Orange);
-            GraphicsPath capPath = new GraphicsPath();
-            capPath.AddLine(-4, -4, 4, -4);
-            capPath.AddLine(-4, -4, 0, 5);
-            capPath.AddLine(4, -4, 0, 5);
-            p.CustomEndCap = new System.Drawing.Drawing2D.CustomLineCap(null, capPath);
-            RoutingApplication.RouteNode[] route = Mapping.FindPath(mapdata, 1, 1, selectedOnly: true);
-            int currentX = 1; int currentY = 1;
-            if (route == null) {
-                pictureBox1.Image = pic;
-
-                return;
-            }
-            foreach (RoutingApplication.RouteNode i in route) {
-                g.DrawLine(p, (float)(0.5 + currentX) * imageResolution, (float)(0.5 + currentY) * imageResolution,
-                    (float)(0.5 + currentX + Constants.RoutingConstants.MOVE_INCREMENT[i.direction].x * i.steps) * imageResolution,
-                    (float)(0.5 + currentY + Constants.RoutingConstants.MOVE_INCREMENT[i.direction].y * i.steps) * imageResolution);
-                currentX += Constants.RoutingConstants.MOVE_INCREMENT[i.direction].x * i.steps;
-                currentY += Constants.RoutingConstants.MOVE_INCREMENT[i.direction].y * i.steps;
-            }
-            pictureBox1.Image = pic;
+            
         }
 
         private void button3_Click(object sender, EventArgs e)

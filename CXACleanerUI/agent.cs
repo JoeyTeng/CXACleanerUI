@@ -12,18 +12,18 @@ namespace AgentApplication {
     using MapNode = System.Int32;
 
     class Agent {
-        private int _serialNumber;
+        public int _serialNumber;
         private int facingDirection;
         private int oldDirection;
         private RoutingApplication.Coordinate currectPosition;
-        private RoutingApplication.RouteNode[] route;
+        public RoutingApplication.RouteNode[] route;
 
         public RoutingApplication.Coordinate chargerPosition;
 
         public Agent() {
             _serialNumber = -1;
             route = null;
-            ChargerPosition = null;
+            chargerPosition = null;
         }
 
         public Agent(int serialNumber, RoutingApplication.Coordinate _chargerPosition = null, int _facingDirection = -1) {
@@ -45,11 +45,11 @@ namespace AgentApplication {
         }
 
         public string Transport() {
-            string commands = new string();
+            string commands = "";
             oldDirection = facingDirection;
 
             foreach (RoutingApplication.RouteNode i in route) {
-                if (i.direction ^ this.facingDirection & 1 == 0) {
+                if ((i.direction ^ this.facingDirection & 1) == 0) {
                     commands += this.encode(i.direction) + i.steps;
                 } else {
                     commands += this.encode(i.direction);
