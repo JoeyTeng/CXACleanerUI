@@ -33,7 +33,10 @@ namespace AgentApplication {
 
             if (_chargerPosition != null) {
                 this.chargerPosition = new RoutingApplication.Coordinate(_chargerPosition);
+            } else {
+                this.chargerPosition = new RoutingApplication.Coordinate(-1, -1);
             }
+            this.currentPosition = new RoutingApplication.Coordinate(this.chargerPosition);
         }
 
         private int Encode(int direction) {
@@ -96,7 +99,7 @@ namespace AgentApplication {
             this.facingDirection = route[0].direction;
             this.oldDirection = this.facingDirection;
 
-            this.tentativePosition = this.currentPosition;
+            this.tentativePosition = new RoutingApplication.Coordinate(this.currentPosition);
             foreach (RoutingApplication.RouteNode node in this._route) {
                 this.tentativePosition = this.tentativePosition + Constants.RoutingConstants.MOVE_INCREMENT[node.direction] * node.steps;
             }
@@ -142,6 +145,7 @@ namespace AgentApplication {
         }
 
         public void BackToCharger() {
+            // RoutingApplication.AStar()
         }
 
         public void Commit(MapNode[,] map) {}
