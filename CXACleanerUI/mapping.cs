@@ -162,7 +162,22 @@ namespace CXACleanerUI {
             RoutingApplication.Coordinate endPoint;
             RoutingApplication.RouteNode[] route;
             RoutingApplication.Routing.RouteSnakeShape(map, initPoint, out endPoint, out route, ignoreFlags: ignoreFlags, selectedOnly: selectedOnly);
-
+            //if (route == null)
+            //{
+            //    int xMax = 0, xMin = 999, yMax = 0, yMin = 999;
+            //    for (int i = 0; i < map.GetLength(0); i++) {
+            //        for (int j = 0; j < map.GetLength(1); j++) {
+            //            if (Constants.MappingConstants.Selected(map, new RoutingApplication.Coordinate(i, j))) {
+            //                if (i < xMin) xMin = i;
+            //                else if (i > xMax) xMax = i;
+            //                if (j < yMin) yMin = j;
+            //                else if (j > yMax) yMax = j;
+            //            }
+            //        }
+            //    }
+            //    int destinationX = 
+            //    route = RoutingApplication.Routing.AStar(map, new RoutingApplication.Coordinate(X, Y), )
+            //}
             System.Console.WriteLine(String.Format("\nFindPath: {0}\n", route != null));
 
             //System.Console.WriteLine("{0} {1}\n", endPoint.x, endPoint.y);

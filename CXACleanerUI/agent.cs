@@ -139,7 +139,7 @@ namespace AgentApplication {
             this.tentativeDirection = this.facingDirection;
             this.facingDirection = this.oldDirection;
 
-            return commands + '\n';
+            return commands;
         }
 
         public void UpdateChargerPosition(RoutingApplication.Coordinate position = null, int direction = -1) {

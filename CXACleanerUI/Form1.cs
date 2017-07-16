@@ -21,6 +21,7 @@ namespace CXACleanerUI
         string imageFileName;
         int imageResolution;
         int threshold;
+        string mapname;
         List<AgentApplication.Agent> agentlist =  new List<AgentApplication.Agent>();
         public Form1(string mapname = null, string imagePath = null, int res = 15, int thr = 600, int[,] data = null)
         {
@@ -31,6 +32,7 @@ namespace CXACleanerUI
             }
             else {
                 this.Text = "Map - " + mapname;
+                this.mapname = mapname;
             }
             imageFileName = imagePath;
             textBox1.Text = res.ToString();
@@ -227,61 +229,35 @@ namespace CXACleanerUI
 
         private void button3_Click(object sender, EventArgs e)
         {
-            string input = Microsoft.VisualBasic.Interaction.InputBox("Input a map name:", "Save as...", "New Map 1", -1, -1);
-            TcpClient client = new TcpClient();
-            client.Connect("192.168.1.101", 1234);
-            NetworkStream stream = client.GetStream();
-            byte[] sendText = System.Text.Encoding.ASCII.GetBytes("uploadmapdata:" + input);
-            stream.Write(sendText, 0, sendText.Length);
-            stream.Flush();
-            byte[] inText = new byte[1024];
-            stream.Read(inText, 0, inText.Length);
-            sendText = System.Text.Encoding.ASCII.GetBytes(imageFileName.Substring(imageFileName.LastIndexOf(@"\") + 1));
-            stream.Write(sendText, 0, sendText.Length);
-            stream.Flush();
-            inText = new byte[1024];
-            stream.Read(inText, 0, inText.Length);
-            sendText = System.Text.Encoding.ASCII.GetBytes(imageResolution.ToString());
-            stream.Write(sendText, 0, sendText.Length);
-            stream.Flush();
-            inText = new byte[1024];
-            stream.Read(inText, 0, inText.Length);
-            sendText = System.Text.Encoding.ASCII.GetBytes(threshold.ToString());
-            stream.Write(sendText, 0, sendText.Length);
-            stream.Flush();
-            inText = new byte[1024];
-            stream.Read(inText, 0, inText.Length);
-            for (int i = 0; i < mapdata.GetLength(0); ++i)
-            {
-                String sb = "";
-                for (int j = 0; j < mapdata.GetLength(1); ++j)
+            string input = Microsoft.VisualBasic.Interaction.InputBox("Input a map name:", "Save as...", mapname == null ? "New Map 1" : mapname, -1, -1);
+            if (input == "") { return; }
+            try {
+                List<string> textToSend = new List<string>();
+                textToSend.Add("uploadmapdata:" + input);
+                textToSend.Add(imageFileName.Substring(imageFileName.LastIndexOf(@"\") + 1));
+                textToSend.Add(imageResolution.ToString());
+                textToSend.Add(threshold.ToString());
+                for (int i = 0; i < mapdata.GetLength(0); ++i)
                 {
-                    sb += String.Format(" {0}", mapdata[i, j]);
+                    String sb = "";
+                    for (int j = 0; j < mapdata.GetLength(1); ++j)
+                    {
+                        sb += String.Format(" {0}", mapdata[i, j]);
+                    }
+                    sb += "\n";
+                    textToSend.Add(sb);
                 }
-                sb += "\n";
-                sendText = System.Text.Encoding.ASCII.GetBytes(sb);
-                stream.Write(sendText, 0, sendText.Length);
-                stream.Flush();
-                inText = new byte[1024];
-                stream.Read(inText, 0, inText.Length);
-            }
-            sendText = System.Text.Encoding.ASCII.GetBytes("END");
-            stream.Write(sendText, 0, sendText.Length);
-            stream.Flush();
-            foreach (AgentApplication.Agent a in agentlist)
+                textToSend.Add("END");
+                foreach (AgentApplication.Agent a in agentlist)
+                {
+                    textToSend.Add(a.Transport() + a.facingDirection);
+                }
+                textToSend.Add("END");
+                NetUtil.SendParagraph(textToSend);
+            } catch(SocketException err)
             {
-                sendText = System.Text.Encoding.ASCII.GetBytes(a.Transport() + a.facingDirection);
-                stream.Write(sendText, 0, sendText.Length);
-                stream.Flush();
-                inText = new byte[1024];
-                stream.Read(inText, 0, inText.Length);
+                MessageBox.Show(this, "Connection denied by the server.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-            sendText = System.Text.Encoding.ASCII.GetBytes("END");
-            stream.Write(sendText, 0, sendText.Length);
-            stream.Flush();
-            byte[] exitText = System.Text.Encoding.ASCII.GetBytes("exit");
-            stream.Write(exitText, 0, exitText.Length);
-            stream.Flush();
         }
 
         private void button4_Click(object sender, EventArgs e)
@@ -291,18 +267,20 @@ namespace CXACleanerUI
                     MessageBox.Show(this, "No agent has been assigned.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
-                TcpClient client = new TcpClient();
-                client.Connect("192.168.1.101", 1234);
-                NetworkStream stream = client.GetStream();
-                byte[] sendText = System.Text.Encoding.ASCII.GetBytes("applytransport:" + agentlist[0].Transport());
-                stream.Write(sendText, 0, sendText.Length);
-                stream.Flush();
-                byte[] inText = new byte[1024];
-                stream.Read(inText, 0, inText.Length);
-                byte[] exitText = System.Text.Encoding.ASCII.GetBytes("exit");
-                stream.Write(exitText, 0, exitText.Length);
-                stream.Flush();
+                try
+                {
+                    NetUtil.SendLineWithReceipt("applytransport:" + agentlist[0].Transport());
+                }
+                catch (SocketException err)
+                {
+                    MessageBox.Show(this, "Connection denied by the server.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
             }
+        }
+
+        private void checkBox3_CheckedChanged_1(object sender, EventArgs e)
+        {
+
         }
     }
 }
