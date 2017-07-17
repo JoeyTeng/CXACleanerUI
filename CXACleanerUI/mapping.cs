@@ -160,17 +160,17 @@ namespace CXACleanerUI {
             RoutingApplication.Routing.ClearPlan(map, target: new RoutingApplication.Coordinate(X, Y), selectedOnly: selectedOnly);
             RoutingApplication.Coordinate initPoint = new RoutingApplication.Coordinate(X, Y);
             RoutingApplication.Coordinate endPoint;
-            RoutingApplication.RouteNode[] route;
+            RoutingApplication.RouteNode[] route = new RoutingApplication.RouteNode[0];
             RoutingApplication.RouteNode[] _route;
 
             endPoint = RoutingApplication.Routing.ClosestUncleanPoint(map, initPoint, selectedOnly: selectedOnly);
             while (endPoint != null) {
                 _route = RoutingApplication.Routing.AStar(map, initPoint, endPoint);
-                _route = _route or new RoutingApplication.RouteNode[0];
+                _route = _route ?? new RoutingApplication.RouteNode[0];
                 RoutingApplication.Routing.AddRoute(route, _route);
 
                 RoutingApplication.Routing.RouteSnakeShape(map, initPoint, out endPoint, out _route, ignoreFlags: ignoreFlags, selectedOnly: selectedOnly);
-                _route = _route or new RoutingApplication.RouteNode[0];
+                _route = _route ?? new RoutingApplication.RouteNode[0];
                 RoutingApplication.Routing.AddRoute(route, _route);
 
                 endPoint = RoutingApplication.Routing.ClosestUncleanPoint(map, endPoint, selectedOnly:selectedOnly);

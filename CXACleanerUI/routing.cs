@@ -192,10 +192,20 @@ namespace RoutingApplication {
 
         public static RouteNode[] AddRoute(RouteNode[] lhs, RouteNode[] rhs) {
             if (lhs == null && rhs != null) {
-                return new RouteNode[](rhs);
+                RouteNode[] copy = new RouteNode[rhs.Length];
+                for (int i = 0; i < rhs.Length; ++i) {
+                    copy[i] = rhs[i];
+                }
+
+                return copy;
             }
             if (lhs != null && rhs == null) {
-                return new RouteNode[](lhs);
+                RouteNode[] copy = new RouteNode[lhs.Length];
+                for (int i = 0; i < lhs.Length; ++i) {
+                    copy[i] = lhs[i];
+                }
+
+                return copy;
             }
             if (lhs == null && rhs == null) {
                 return null;
@@ -213,20 +223,20 @@ namespace RoutingApplication {
             return route;
         }
 
-        public Coordinate ClosestUncleanPoint(MapNode[,] map, Coordinate initPoint, bool selectedOnly = false) {
-            System.Collections.Queue queue = new System.Collections.Queue();
+        public static Coordinate ClosestUncleanPoint(MapNode[,] map, Coordinate initPoint, bool selectedOnly = false) {
+            System.Collections.Generic.Queue<Coordinate> queue = new System.Collections.Generic.Queue<Coordinate>();
             queue.Enqueue(initPoint);
 
             while (queue.Count != 0) {
                 Coordinate current = queue.Dequeue();
 
-                if (Constants.MappingConstants.Unplanned(map, current + i)) {
-                    return (current + i);
+                if (Constants.MappingConstants.Unplanned(map, current)) {
+                    return (current);
                 }
 
                 foreach (Coordinate i in Constants.RoutingConstants.MOVE_INCREMENT) {
                     if (Constants.MappingConstants.Unblocked(map, current + i) && (!selectedOnly || Constants.MappingConstants.Selected(map, current + i))) {
-                            queue.Euqueue(current + i);
+                            queue.Enqueue(current + i);
                     }
                 }
             }
@@ -248,7 +258,7 @@ namespace RoutingApplication {
                     }
                 }
             } else {
-                System.Collections.Stack stack = new System.Collections.Stack();
+                System.Collections.Generic.Stack<Coordinate> stack = new System.Collections.Generic.Stack<Coordinate>();
                 System.Collections.Hashtable hash = new System.Collections.Hashtable();
 
                 stack.Push(target);
@@ -258,7 +268,7 @@ namespace RoutingApplication {
                     Coordinate current = stack.Pop();
                     Constants.MappingConstants.Unplan(map, current);
 
-                    foreach (Coordinate i in Constants.RoutingConstants.MOVE_INCREMENT.Length) {
+                    foreach (Coordinate i in Constants.RoutingConstants.MOVE_INCREMENT) {
                         if (!hash.Contains(current + i) && Constants.MappingConstants.Unblocked(map, current + i) && (!selectedOnly || Constants.MappingConstants.Selected(map, current + i))) {
                             stack.Push(current + i);
                             hash.Add(current + i, hash.Count);
