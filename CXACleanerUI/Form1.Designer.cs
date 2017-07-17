@@ -123,7 +123,6 @@
             // radioButton1
             // 
             this.radioButton1.Appearance = System.Windows.Forms.Appearance.Button;
-            this.radioButton1.AutoSize = true;
             this.radioButton1.Checked = true;
             this.radioButton1.Image = ((System.Drawing.Image)(resources.GetObject("radioButton1.Image")));
             this.radioButton1.Location = new System.Drawing.Point(7, 21);
@@ -151,7 +150,6 @@
             // checkBox2
             // 
             this.checkBox2.Appearance = System.Windows.Forms.Appearance.Button;
-            this.checkBox2.AutoSize = true;
             this.checkBox2.Checked = true;
             this.checkBox2.CheckState = System.Windows.Forms.CheckState.Checked;
             this.checkBox2.Image = ((System.Drawing.Image)(resources.GetObject("checkBox2.Image")));
@@ -384,6 +382,7 @@
             this.button6.TabIndex = 10;
             this.toolTip1.SetToolTip(this.button6, "Transfer route");
             this.button6.UseVisualStyleBackColor = true;
+            this.button6.Click += new System.EventHandler(this.button6_Click);
             // 
             // button5
             // 
@@ -504,9 +503,7 @@
             this.Text = "New Map";
             this.Load += new System.EventHandler(this.Form1_Load);
             this.groupBox1.ResumeLayout(false);
-            this.groupBox1.PerformLayout();
             this.groupBox2.ResumeLayout(false);
-            this.groupBox2.PerformLayout();
             this.groupBox3.ResumeLayout(false);
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();

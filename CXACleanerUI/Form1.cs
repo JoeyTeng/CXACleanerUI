@@ -11,6 +11,7 @@ using System.Windows.Forms;
 namespace CXACleanerUI
 {
     using System.Net.Sockets;
+    using System.Threading;
     using MapNode = System.Int32;
     public partial class Form1 : Form
     {
@@ -375,6 +376,12 @@ namespace CXACleanerUI
                 comboBox2.SelectedIndex = 0;
             }
             RefreshImage();
+        }
+
+        private void button6_Click(object sender, EventArgs e)
+        {
+            string input = Microsoft.VisualBasic.Interaction.InputBox(":", "Save as...", mapname == null ? "New Map 1" : mapname, -1, -1);
+            if (input == "") { return; }
         }
     }
 }
