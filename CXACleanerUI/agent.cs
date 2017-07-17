@@ -20,7 +20,7 @@ namespace AgentApplication {
         public const int ERROR = -1;
     }
     class Agent {
-        private int tentativeDirection;
+        private int _tentativeDirection;
         private int oldDirection;
         private int currentDirection;
         private RoutingApplication.Coordinate currentPosition;
@@ -43,7 +43,7 @@ namespace AgentApplication {
         public Agent(int serialNumber, RoutingApplication.Coordinate _chargerPosition = null, int _currentDirection = -1) {
             this._serialNumber = serialNumber;
             this.currentDirection = _currentDirection;
-            this.tentativeDirection = this.currentDirection;
+            this._tentativeDirection = this.currentDirection;
             this.oldDirection = -1;
             this.chargerDirection = -1;
 
@@ -55,9 +55,9 @@ namespace AgentApplication {
             this.currentPosition = new RoutingApplication.Coordinate(this.chargerPosition);
         }
         private void ClearRoute() {
-            /// route & tentativeDirection & tentativePosition will be reset.
+            /// route & _tentativeDirection & tentativePosition will be reset.
             this._route = null;
-            this.tentativeDirection = this.currentDirection;
+            this._tentativeDirection = this.currentDirection;
             this.tentativePosition = this.currentPosition;
         }
         private int Encode(int direction) {
@@ -71,10 +71,16 @@ namespace AgentApplication {
             }
         }
 
+        public int tentativeDirection {
+            get {
+                return this._tentativeDirection;
+            }
+        }
+
         public RoutingApplication.RouteNode[] Decode(string commands, int finalDirection) {
             System.Collections.Generic.Stack<RoutingApplication.RouteNode> route = new System.Collections.Generic.Stack<RoutingApplication.RouteNode>();
 
-            this.tentativeDirection = finalDirection;
+            this._tentativeDirection = finalDirection;
             int _currentDirection = finalDirection;
             for (int j = commands.Length; j > 0; --j) {
                 int i = j - 1;
@@ -125,7 +131,7 @@ namespace AgentApplication {
         }
 
         public void UpdateRoute(RoutingApplication.RouteNode[] route) {
-            /// tentativeDirection & tentativePosition will be updated.
+            /// _tentativeDirection & tentativePosition will be updated.
             if (route == null || route.Length == 0) {
                 System.Console.WriteLine("Warning: UpdateRoute: null route/0 length route recieved.");
                 return;
@@ -162,7 +168,7 @@ namespace AgentApplication {
                     }
                 }
             }
-            this.tentativeDirection = this.currentDirection;
+            this._tentativeDirection = this.currentDirection;
             this.currentDirection = this.oldDirection;
 
             return commands;
@@ -260,7 +266,7 @@ namespace AgentApplication {
                 System.Console.WriteLine("Warning: Different tentativePosition with calculated position.");
                 this.currentPosition = this.tentativePosition;
             }
-            this.currentDirection = this.tentativeDirection;
+            this.currentDirection = this._tentativeDirection;
             this.oldDirection = this.currentDirection;
             this.ClearRoute();
         }
