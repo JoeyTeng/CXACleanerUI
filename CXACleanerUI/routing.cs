@@ -166,7 +166,7 @@ namespace RoutingApplication {
             Coordinate next;
             next = current + RoutingConstants.MOVE_INCREMENT[direction];
 
-            if (MappingConstants.Unblocked(map, next) && ((!selectedOnly || MappingConstants.Selected(map, next)) && MappingConstants.Unplanned(map, next)) && (selectedOnly || ignoreFlags || (MappingConstants.Unplanned(map, next) && MappingConstants.Unclean(map, next)))) {
+            if (MappingConstants.Unblocked(map, next) && (!selectedOnly || (MappingConstants.Selected(map, next) && MappingConstants.Unplanned(map, next))) && (selectedOnly || ignoreFlags || (MappingConstants.Unplanned(map, next) && MappingConstants.Unclean(map, next)))) {
                 nextPoint = next;
                 return true;
             } else {
@@ -245,7 +245,7 @@ namespace RoutingApplication {
                 }
 
                 foreach (Coordinate i in Constants.RoutingConstants.MOVE_INCREMENT) {
-                    if (!hash.Contains(current + i) && Constants.MappingConstants.Unblocked(map, current + i) && (!selectedOnly || Constants.MappingConstants.Selected(map, current + i))) {
+                    if (!hash.Contains(current + i) && Constants.MappingConstants.Unblocked(map, current + i)) {
                             queue.Enqueue(current + i);
                             hash.Add(current + i, hash.Count);
                     }
@@ -261,7 +261,7 @@ namespace RoutingApplication {
         }
 
         public static void ClearPlan(MapNode[,] map, Coordinate target = null, bool selectedOnly = false) {
-            System.Console.WriteLine("ClearPlan triggered.\n{0} {1}", target, selectedOnly);
+            System.Console.WriteLine("ClearPlan triggered.\n  {0} {1}", target, selectedOnly);
             if (target == null) {
                 /// By default, clear the whole map
                 for (int i = 0; i < map.GetLength(0); ++i) {
@@ -290,11 +290,10 @@ namespace RoutingApplication {
             }
         }
         public static RouteNode[] AStar(MapNode[,] map, Coordinate initPoint, Coordinate destination) {
-            int estimatedCount = 0;
             System.Collections.Hashtable estimatedPoints = new System.Collections.Hashtable();
-            int estimatingCount = 0;
-            System.Collections.Hashtable estimatingSet = new System.Collections.Hashtable();
-            FastPriorityQueue<Coordinate> estimatingPoints = new FastPriorityQueue<Coordinate>(map.Length);
+            System.Collections.Generic.Dictionary<int, Coordinate> estimatingSet = new System.Collections.Generic.Dictionary<int, Coordinate>();
+            /// FastPriorityQueue<Coordinate> estimatingPoints = new FastPriorityQueue<Coordinate>(map.Length);
+            SimplePriorityQueue<Coordinate> estimatingPoints = new SimplePriorityQueue<Coordinate>();
 
             int[,] record;
             Initialize2DArray(out record, map, -1);
@@ -308,7 +307,7 @@ namespace RoutingApplication {
             estimatedDistance[initPoint.x, initPoint.y] = HeuristicEstimateOfDistance(initPoint, destination);
 
             estimatingPoints.Enqueue(initPoint, Dist(initPoint, realDistance, estimatedDistance));
-            estimatingSet.Add(initPoint.Hash, estimatingCount++);
+            estimatingSet.Add(initPoint.Hash, initPoint);
 
 
             while (estimatingPoints.Count != 0) {
@@ -319,7 +318,7 @@ namespace RoutingApplication {
                     return AStarRebuildRoute(map, destination, record);
                 }
 
-                estimatedPoints.Add(current.Hash, estimatedCount++);
+                estimatedPoints.Add(current.Hash, current);
                 Coordinate next;
                 for (int i = 0; i < RoutingConstants.MOVE_INCREMENT.Length; ++i) {
                     if (!CheckNextStep(map, current, i, out next, ignoreFlags: true)) {
@@ -330,13 +329,17 @@ namespace RoutingApplication {
                     }
                     int tentativeRealDistance = realDistance[next.x, next.y] + 1;
 
-                    if (!estimatingSet.Contains(next.Hash)) {
+                    if (!estimatingSet.ContainsKey(next.Hash) || tentativeRealDistance < realDistance[next.x, next.y]) {
                         record[next.x, next.y] = i;
                         realDistance[next.x, next.y] = tentativeRealDistance;
                         estimatedDistance[next.x, next.y] = HeuristicEstimateOfDistance(next, destination);
 
-                        estimatingPoints.Enqueue(next, realDistance[next.x, next.y] + estimatedDistance[next.x, next.y]);
-                        estimatingSet.Add(next.Hash, estimatingCount++);
+                        if (!estimatingSet.ContainsKey(next.Hash)) {
+                            estimatingPoints.Enqueue(next, realDistance[next.x, next.y] + estimatedDistance[next.x, next.y]);
+                            estimatingSet.Add(next.Hash, next);
+                        } else {
+                            estimatingPoints.UpdatePriority(estimatingSet[next.Hash], realDistance[next.x, next.y] + estimatedDistance[next.x, next.y]);
+                        }
                     }
                 }
             }
@@ -344,11 +347,11 @@ namespace RoutingApplication {
             return null;
         }
 
-        public static void RouteSnakeShape(MapNode[,] map, Coordinate initPoint, out Coordinate endPoint, out RouteNode[] route, bool ignoreFlags = false, bool selectedOnly = false) {
+        public static void RouteSnakeShape(MapNode[,] map, Coordinate initPoint, out Coordinate endPoint, out RouteNode[] route, int currentDirection = 0, bool ignoreFlags = false, bool selectedOnly = false) {
             System.Collections.Generic.Queue<int> record = new System.Collections.Generic.Queue<int>(map.Length);
             Coordinate current = new Coordinate(initPoint);
             MappingConstants.Plan(map, current);
-            int direction = 0;
+            int direction = currentDirection;
 
             while (true) {
                 /// TODO: How do detect better init direction?
@@ -357,11 +360,11 @@ namespace RoutingApplication {
                     record.Enqueue(direction);
                     MappingConstants.Plan(map, current);
                 }
-                if (CheckNextStep(map, current, 1, out current, ignoreFlags: ignoreFlags, selectedOnly: selectedOnly)) {
-                    record.Enqueue(1);
+                if (CheckNextStep(map, current, direction ^ 1, out current, ignoreFlags: ignoreFlags, selectedOnly: selectedOnly)) {
+                    record.Enqueue(direction ^ 1);
                     MappingConstants.Plan(map, current);
-                } else if (CheckNextStep(map, current, 3, out current, ignoreFlags: ignoreFlags, selectedOnly: selectedOnly)) {
-                    record.Enqueue(3);
+                } else if (CheckNextStep(map, current, direction ^ 3, out current, ignoreFlags: ignoreFlags, selectedOnly: selectedOnly)) {
+                    record.Enqueue(direction ^ 3);
                     MappingConstants.Plan(map, current);
                 } else {
                     break;
