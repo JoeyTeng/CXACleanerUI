@@ -94,6 +94,7 @@ namespace CXACleanerUI
                     pictureBox1.Image = map;
                     continue;
                 }
+                g.FillRectangle(new SolidBrush(Color.FromArgb(128, Color.Yellow)), currentX * imageResolution, currentY * imageResolution, imageResolution, imageResolution);
                 g.DrawString(a._serialNumber.ToString(), new Font("Arial", (float)10), comboBox2.SelectedIndex == agentlist.IndexOf(a) ? Brushes.Red : Brushes.Orange, (float)(0.5 + currentX) * imageResolution - 10, (float)(0.5 + currentY) * imageResolution - 10);
                 foreach (RoutingApplication.RouteNode i in route)
                 {
@@ -155,6 +156,7 @@ namespace CXACleanerUI
                         agentlist[agentlist.Count - 1].UpdateRoute(route);
                         agentlist[agentlist.Count - 1].status = AgentApplication.AgentStatus.IDLE;
                         comboBox2.Enabled = true;
+                        button4.Enabled = true; button5.Enabled = true; button6.Enabled = true;
                         comboBox2.Items.Add(agentlist[agentlist.Count - 1]._serialNumber.ToString());
                         comboBox2.SelectedIndex = agentlist.Count - 1;
                         agentSerial++;
@@ -365,6 +367,7 @@ namespace CXACleanerUI
             if (agentlist.Count == 0)
             {
                 comboBox2.Enabled = false;
+                button4.Enabled = false; button5.Enabled = false; button6.Enabled = false;
             }
             else {
                 comboBox2.SelectedIndex = 0;
