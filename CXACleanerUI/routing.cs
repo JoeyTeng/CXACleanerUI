@@ -4,7 +4,7 @@
  * @Email:  joey.teng.dev@gmail.com
  * @Filename: routing.cs
  * @Last modified by:   Toujour
- * @Last modified time: 17-Jul-2017
+ * @Last modified time: 18-Jul-2017
  */
 using Priority_Queue;
 using Constants;
@@ -73,11 +73,19 @@ namespace RoutingApplication {
         }
 
         public static bool operator==(Coordinate lhs, Coordinate rhs) {
+            if (System.Object.ReferenceEquals(lhs, rhs)) {
+                return true;
+            }
+
+            if (((object)lhs == null) || ((object)rhs == null)) {
+                return false;
+            }
+
             return lhs.Equals(rhs);
         }
 
         public static bool operator!=(Coordinate lhs, Coordinate rhs) {
-            return !lhs.Equals(rhs);
+            return !(lhs == rhs);
         }
 
         public int ManhattanDistance(Coordinate destination) {
@@ -225,18 +233,21 @@ namespace RoutingApplication {
 
         public static Coordinate ClosestUncleanPoint(MapNode[,] map, Coordinate initPoint, bool selectedOnly = false) {
             System.Collections.Generic.Queue<Coordinate> queue = new System.Collections.Generic.Queue<Coordinate>();
+            System.Collections.Hashtable hash = new System.Collections.Hashtable();
             queue.Enqueue(initPoint);
+            hash.Add(initPoint, hash.Count);
 
             while (queue.Count != 0) {
                 Coordinate current = queue.Dequeue();
 
-                if (Constants.MappingConstants.Unplanned(map, current)) {
+                if (Constants.MappingConstants.Unplanned(map, current) && (!selectedOnly || Constants.MappingConstants.Selected(map, current))) {
                     return (current);
                 }
 
                 foreach (Coordinate i in Constants.RoutingConstants.MOVE_INCREMENT) {
-                    if (Constants.MappingConstants.Unblocked(map, current + i) && (!selectedOnly || Constants.MappingConstants.Selected(map, current + i))) {
+                    if (!hash.Contains(current + i) && Constants.MappingConstants.Unblocked(map, current + i) && (!selectedOnly || Constants.MappingConstants.Selected(map, current + i))) {
                             queue.Enqueue(current + i);
+                            hash.Add(current + i, hash.Count);
                     }
                 }
             }
@@ -250,6 +261,7 @@ namespace RoutingApplication {
         }
 
         public static void ClearPlan(MapNode[,] map, Coordinate target = null, bool selectedOnly = false) {
+            System.Console.WriteLine("ClearPlan triggered.\n{0} {1}", target, selectedOnly);
             if (target == null) {
                 /// By default, clear the whole map
                 for (int i = 0; i < map.GetLength(0); ++i) {
@@ -335,6 +347,7 @@ namespace RoutingApplication {
         public static void RouteSnakeShape(MapNode[,] map, Coordinate initPoint, out Coordinate endPoint, out RouteNode[] route, bool ignoreFlags = false, bool selectedOnly = false) {
             System.Collections.Generic.Queue<int> record = new System.Collections.Generic.Queue<int>(map.Length);
             Coordinate current = new Coordinate(initPoint);
+            MappingConstants.Plan(map, current);
             int direction = 0;
 
             while (true) {
