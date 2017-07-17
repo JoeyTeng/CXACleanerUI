@@ -4,7 +4,7 @@
  * @Email:  joey.teng.dev@gmail.com
  * @Filename: Flood-Filled.cs
  * @Last modified by:   Toujour
- * @Last modified time: 17-Jul-2017
+ * @Last modified time: 18-Jul-2017
  */
 using System;
 using System.Drawing;
@@ -149,9 +149,9 @@ namespace CXACleanerUI {
             mapping.LoadImage(imageName);
             mapping.Fill(threshold);
             mapping.Compress(resolution);
-            mapping.Print();
+            /// mapping.Print();
 
-            //Test(mapping);
+            /// Test(mapping);
 
             return mapping.map;
         }
@@ -165,16 +165,20 @@ namespace CXACleanerUI {
 
             endPoint = RoutingApplication.Routing.ClosestUncleanPoint(map, initPoint, selectedOnly: selectedOnly);
             while (endPoint != null) {
+                System.Console.WriteLine("Endpoint != null Loop: {0} {1}", endPoint.x, endPoint.y);
                 _route = RoutingApplication.Routing.AStar(map, initPoint, endPoint);
                 _route = _route ?? new RoutingApplication.RouteNode[0];
-                RoutingApplication.Routing.AddRoute(route, _route);
+                route = RoutingApplication.Routing.AddRoute(route, _route);
+                initPoint = endPoint;
 
                 RoutingApplication.Routing.RouteSnakeShape(map, initPoint, out endPoint, out _route, ignoreFlags: ignoreFlags, selectedOnly: selectedOnly);
                 _route = _route ?? new RoutingApplication.RouteNode[0];
-                RoutingApplication.Routing.AddRoute(route, _route);
+                route = RoutingApplication.Routing.AddRoute(route, _route);
+                initPoint = endPoint;
 
-                endPoint = RoutingApplication.Routing.ClosestUncleanPoint(map, endPoint, selectedOnly:selectedOnly);
+                endPoint = RoutingApplication.Routing.ClosestUncleanPoint(map, initPoint, selectedOnly: selectedOnly);
             }
+
             System.Console.WriteLine(String.Format("\nFindPath: {0}\n", route != null)); /// DEBUG
 
             return route;
