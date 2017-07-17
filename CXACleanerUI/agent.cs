@@ -11,6 +11,14 @@ using Constants;
 namespace AgentApplication {
     using MapNode = System.Int32;
 
+    class AgentStatus {
+        public const int IDLE = 0;
+        public const int ACTIVE = 1;
+        public const int AVOIDING = 2;
+        public const int RETURNING = 3;
+        public const int TRANSFERING = 4;
+        public const int ERROR = -1;
+    }
     class Agent {
         private int tentativeDirection;
         private int oldDirection;
@@ -23,6 +31,8 @@ namespace AgentApplication {
         public int chargerDirection;
         public bool initialized;
         public RoutingApplication.Coordinate chargerPosition;
+
+        public int status;
 
         public Agent() {
             _serialNumber = -1;

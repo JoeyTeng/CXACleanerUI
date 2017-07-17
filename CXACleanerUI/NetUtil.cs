@@ -9,6 +9,7 @@ namespace CXACleanerUI
     {
         static string host = "192.168.1.100";
         static int port = 1234;
+        static int timeout = 2000;
         public static void SendText(NetworkStream stream, string textToSend)
         {
             byte[] sendText = System.Text.Encoding.ASCII.GetBytes(textToSend);
@@ -32,7 +33,9 @@ namespace CXACleanerUI
         public static void SendLineWithReceipt(string textToSend)
         {
             TcpClient client = new TcpClient();
-            client.Connect(host, port);
+            IAsyncResult result = client.BeginConnect(host, port, null, null);
+            bool success = result.AsyncWaitHandle.WaitOne(timeout, true);
+            if (!success) { client.Close(); throw new SocketException(); }
             Console.WriteLine(string.Format("Connected to {0}:{1}", host, port));
             NetworkStream stream = client.GetStream();
             SendText(stream, textToSend);
@@ -42,7 +45,9 @@ namespace CXACleanerUI
         public static string SendLineWithLineResponse(string textToSend)
         {
             TcpClient client = new TcpClient();
-            client.Connect(host, port);
+            IAsyncResult result = client.BeginConnect(host, port, null, null);
+            bool success = result.AsyncWaitHandle.WaitOne(timeout, true);
+            if (!success) { client.Close(); throw new SocketException(); }
             Console.WriteLine(string.Format("Connected to {0}:{1}", host, port));
             NetworkStream stream = client.GetStream();
             SendText(stream, textToSend);
@@ -53,7 +58,9 @@ namespace CXACleanerUI
         public static string SendLineWithLongResponse(string textToSend)
         {
             TcpClient client = new TcpClient();
-            client.Connect(host, port);
+            IAsyncResult result = client.BeginConnect(host, port, null, null);
+            bool success = result.AsyncWaitHandle.WaitOne(timeout, true);
+            if (!success) { client.Close(); throw new SocketException(); }
             NetworkStream stream = client.GetStream();
             SendText(stream, textToSend);
             string stringbuilder = "";
@@ -72,7 +79,9 @@ namespace CXACleanerUI
         }
         public static void SendParagraph(List<string> textToSend) {
             TcpClient client = new TcpClient();
-            client.Connect(host, port);
+            IAsyncResult result = client.BeginConnect(host, port, null, null);
+            bool success = result.AsyncWaitHandle.WaitOne(timeout, true);
+            if (!success) { client.Close(); throw new SocketException(); }
             NetworkStream stream = client.GetStream();
             foreach (string t in textToSend) { SendText(stream, t); if (t != "END") { ReceiveText(stream); } }
             EndConnection(stream);

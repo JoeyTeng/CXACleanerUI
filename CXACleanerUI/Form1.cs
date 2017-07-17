@@ -23,6 +23,7 @@ namespace CXACleanerUI
         int threshold;
         string mapname;
         List<AgentApplication.Agent> agentlist =  new List<AgentApplication.Agent>();
+        int agentSerial = 0;
         public Form1(string mapname = null, string imagePath = null, int res = 15, int thr = 600, int[,] data = null)
         {
             InitializeComponent();
@@ -81,7 +82,7 @@ namespace CXACleanerUI
             }
             foreach (AgentApplication.Agent a in agentlist) {
                 RoutingApplication.RouteNode[] route = a.route;
-                Pen p = new Pen(Color.Orange);
+                Pen p = new Pen(comboBox2.SelectedIndex == agentlist.IndexOf(a) ? Color.Red : Color.Orange);
                 GraphicsPath capPath = new GraphicsPath();
                 capPath.AddLine(0, 0, -4, -8);
                 capPath.AddLine(0, 0, 4, -8);
@@ -93,7 +94,7 @@ namespace CXACleanerUI
                     pictureBox1.Image = map;
                     continue;
                 }
-                g.DrawString(a._serialNumber.ToString(), new Font("Arial", (float)10), Brushes.Orange, (float)(0.5 + currentX) * imageResolution - 10, (float)(0.5 + currentY) * imageResolution - 10);
+                g.DrawString(a._serialNumber.ToString(), new Font("Arial", (float)10), comboBox2.SelectedIndex == agentlist.IndexOf(a) ? Brushes.Red : Brushes.Orange, (float)(0.5 + currentX) * imageResolution - 10, (float)(0.5 + currentY) * imageResolution - 10);
                 foreach (RoutingApplication.RouteNode i in route)
                 {
                     g.DrawLine(p, (float)(0.5 + currentX) * imageResolution, (float)(0.5 + currentY) * imageResolution,
@@ -104,6 +105,40 @@ namespace CXACleanerUI
                 }
                 //pictureBox1.Image = map;
             }
+            if (agentlist.Count != 0)
+            {
+                switch (agentlist[comboBox2.SelectedIndex].status)
+                {
+                    case AgentApplication.AgentStatus.IDLE:
+                        statusLabel.Text = "Idle";
+                        statusLabel.ForeColor = Color.Orange;
+                        break;
+                    case AgentApplication.AgentStatus.ACTIVE:
+                        statusLabel.Text = "On Duty";
+                        statusLabel.ForeColor = Color.DarkGreen;
+                        break;
+                    case AgentApplication.AgentStatus.AVOIDING:
+                        statusLabel.Text = "Avoiding";
+                        statusLabel.ForeColor = Color.Red;
+                        break;
+                    case AgentApplication.AgentStatus.ERROR:
+                        statusLabel.Text = "Avoiding";
+                        statusLabel.ForeColor = Color.Red;
+                        break;
+                    case AgentApplication.AgentStatus.RETURNING:
+                        statusLabel.Text = "Returning";
+                        statusLabel.ForeColor = Color.Orange;
+                        break;
+                    case AgentApplication.AgentStatus.TRANSFERING:
+                        statusLabel.Text = "Transfering";
+                        statusLabel.ForeColor = Color.Blue;
+                        break;
+                }
+            }
+            else {
+                statusLabel.Text = "Null";
+                statusLabel.ForeColor = Color.DarkGray;
+            }
             pictureBox1.Image = map;
         }
 
@@ -112,10 +147,18 @@ namespace CXACleanerUI
             if (imageFileName != null)
             {
                 if (checkBox3.Checked) {
-                    agentlist.Add(new AgentApplication.Agent(agentlist.Count + 1, new RoutingApplication.Coordinate((int)(e.X / imageResolution), (int)(e.Y / imageResolution))));
+                    agentlist.Add(new AgentApplication.Agent(agentSerial + 1, new RoutingApplication.Coordinate((int)(e.X / imageResolution), (int)(e.Y / imageResolution))));
                     RoutingApplication.RouteNode[] route = Mapping.FindPath(mapdata, (int)(e.X / imageResolution), (int)(e.Y / imageResolution), selectedOnly: true);
                     if (route == null) { agentlist.RemoveAt(agentlist.Count - 1); }
-                    else { agentlist[agentlist.Count - 1].UpdateRoute(route); }
+                    else
+                    {
+                        agentlist[agentlist.Count - 1].UpdateRoute(route);
+                        agentlist[agentlist.Count - 1].status = AgentApplication.AgentStatus.IDLE;
+                        comboBox2.Enabled = true;
+                        comboBox2.Items.Add(agentlist[agentlist.Count - 1]._serialNumber.ToString());
+                        comboBox2.SelectedIndex = agentlist.Count - 1;
+                        agentSerial++;
+                    }
                     RefreshImage();
                 }
                 else if (radioButton1.Checked)
@@ -229,6 +272,11 @@ namespace CXACleanerUI
 
         private void button3_Click(object sender, EventArgs e)
         {
+            if (imageFileName == null)
+            {
+                MessageBox.Show(this, "Please create a map before saving.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
             string input = Microsoft.VisualBasic.Interaction.InputBox("Input a map name:", "Save as...", mapname == null ? "New Map 1" : mapname, -1, -1);
             if (input == "") { return; }
             try {
@@ -281,6 +329,47 @@ namespace CXACleanerUI
         private void checkBox3_CheckedChanged_1(object sender, EventArgs e)
         {
 
+        }
+
+        private void button8_Click(object sender, EventArgs e)
+        {
+            panel2.Visible = true;
+        }
+
+        private void button7_Click(object sender, EventArgs e)
+        {
+            panel2.Visible = false;
+            imageResolution = Int32.Parse(textBox1.Text);
+            threshold = Int32.Parse(textBox2.Text);
+            if (imageFileName != null) {
+                mapdata = Mapping.Execute(imageFileName, imageResolution, threshold);
+                dragarea = new MapNode[mapdata.GetLength(0), mapdata.GetLength(1)];
+                RefreshImage();
+            }
+        }
+
+        private void button9_Click(object sender, EventArgs e)
+        {
+            panel2.Visible = false;
+        }
+
+        private void comboBox2_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            RefreshImage();
+        }
+
+        private void button5_Click(object sender, EventArgs e)
+        {
+            agentlist.RemoveAt(comboBox2.SelectedIndex);
+            comboBox2.Items.RemoveAt(comboBox2.SelectedIndex);
+            if (agentlist.Count == 0)
+            {
+                comboBox2.Enabled = false;
+            }
+            else {
+                comboBox2.SelectedIndex = 0;
+            }
+            RefreshImage();
         }
     }
 }
