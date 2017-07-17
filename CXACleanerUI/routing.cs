@@ -4,7 +4,7 @@
  * @Email:  joey.teng.dev@gmail.com
  * @Filename: routing.cs
  * @Last modified by:   Toujour
- * @Last modified time: 15-Jul-2017
+ * @Last modified time: 17-Jul-2017
  */
 using Priority_Queue;
 using Constants;
@@ -194,10 +194,31 @@ namespace RoutingApplication {
             return CheckNextStep(map, current, direction, out _tmp, ignoreFlags: ignoreFlags, selectedOnly: selectedOnly);
         }
 
-        public static void ClearPlan(MapNode[,] map) {
-            for (int i = 0; i < map.GetLength(0); ++i) {
-                for (int j = 0; j < map.GetLength(1); ++j) {
-                    Constants.MappingConstants.Unplan(map, new Coordinate(i, j));
+        public static void ClearPlan(MapNode[,] map, Coordinate target = null, bool selectedOnly = false) {
+            if (target == null) {
+                /// By default, clear the whole map
+                for (int i = 0; i < map.GetLength(0); ++i) {
+                    for (int j = 0; j < map.GetLength(1); ++j) {
+                        Constants.MappingConstants.Unplan(map, new Coordinate(i, j));
+                    }
+                }
+            } else {
+                System.Collections.Stack stack = new System.Collections.Stack();
+                System.Collections.Hashtable hash = new System.Collections.Hashtable();
+
+                stack.Push(target);
+                hash.Add(target, hash.Count);
+
+                while (stack.Count != 0) {
+                    Coordinate current = stack.Pop();
+                    Constants.MappingConstants.Unplan(map, current);
+
+                    foreach (Coordinate i in Constants.RoutingConstants.MOVE_INCREMENT.Length) {
+                        if (!hash.Contains(current + i) && Constants.MappingConstants.Unblocked(map, current + i) && (!selectedOnly || Constants.MappingConstants.Selected(map, current + i))) {
+                            stack.Push(current + i);
+                            hash.Add(current + i, hash.Count);
+                        }
+                    }
                 }
             }
         }
