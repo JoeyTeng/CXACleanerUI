@@ -83,7 +83,7 @@ namespace CXACleanerUI
             bool success = result.AsyncWaitHandle.WaitOne(timeout, true);
             if (!success) { client.Close(); throw new SocketException(); }
             NetworkStream stream = client.GetStream();
-            foreach (string t in textToSend) { SendText(stream, t); if (t != "END") { ReceiveText(stream); } }
+            foreach (string t in textToSend) { SendText(stream, t); ReceiveText(stream); }
             EndConnection(stream);
         }
     }

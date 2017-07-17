@@ -44,6 +44,7 @@ namespace CXACleanerUI
         {
             if (listBox1.SelectedIndex == -1) {
                 MessageBox.Show(this, "Please select a map first.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
             }
             try
             {
@@ -53,6 +54,8 @@ namespace CXACleanerUI
                 var imagepath = tmp[0];
                 var resolution = Int32.Parse(tmp[1]);
                 var threshold = Int32.Parse(tmp[2]);
+                var scale = tmp[3];
+                Console.WriteLine("Scale=" + scale);
                 r = NetUtil.SendLineWithLongResponse("fetchmapdata:" + listBox1.Items[listBox1.SelectedIndex]);
                 string[] lines = r.Split('\n');
                 int[,] mapdata = new int[lines.Length, lines[0].Split(' ').Length];
@@ -62,7 +65,7 @@ namespace CXACleanerUI
                         mapdata[i, j] = Int32.Parse(elements[j]);
                     }
                 }
-                new Form1(mapname, Directory.GetCurrentDirectory() + "/res/" + imagepath, resolution, threshold, mapdata).Visible = true;
+                new Form1(mapname, Directory.GetCurrentDirectory() + "/res/" + imagepath, resolution, threshold, scale, mapdata).Visible = true;
             }
             catch (SocketException err)
             {

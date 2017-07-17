@@ -24,7 +24,7 @@ namespace CXACleanerUI
         string mapname;
         List<AgentApplication.Agent> agentlist =  new List<AgentApplication.Agent>();
         int agentSerial = 0;
-        public Form1(string mapname = null, string imagePath = null, int res = 15, int thr = 600, int[,] data = null)
+        public Form1(string mapname = null, string imagePath = null, int res = 15, int thr = 600, string scale = "1.0", int[,] data = null)
         {
             InitializeComponent();
             if (mapname == null)
@@ -41,6 +41,7 @@ namespace CXACleanerUI
             textBox2.Text = thr.ToString();
             threshold = thr;
             mapdata = data;
+            textBox3.Text = scale;
             RefreshImage();
         }
 
@@ -287,6 +288,7 @@ namespace CXACleanerUI
                 textToSend.Add(imageFileName.Substring(imageFileName.LastIndexOf(@"\") + 1));
                 textToSend.Add(imageResolution.ToString());
                 textToSend.Add(threshold.ToString());
+                textToSend.Add(textBox3.Text);
                 for (int i = 0; i < mapdata.GetLength(0); ++i)
                 {
                     String sb = "";
