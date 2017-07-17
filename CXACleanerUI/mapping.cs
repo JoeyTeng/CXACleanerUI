@@ -171,7 +171,8 @@ namespace CXACleanerUI {
                 route = RoutingApplication.Routing.AddRoute(route, _route);
                 initPoint = endPoint;
 
-                RoutingApplication.Routing.RouteSnakeShape(map, initPoint, out endPoint, out _route, ignoreFlags: ignoreFlags, selectedOnly: selectedOnly);
+                int currentDirection = (route.Length != 0) ? route[route.Length - 1].direction : 0;
+                RoutingApplication.Routing.RouteSnakeShape(map, initPoint, out endPoint, out _route, currentDirection: currentDirection, ignoreFlags: ignoreFlags, selectedOnly: selectedOnly);
                 _route = _route ?? new RoutingApplication.RouteNode[0];
                 route = RoutingApplication.Routing.AddRoute(route, _route);
                 initPoint = endPoint;
