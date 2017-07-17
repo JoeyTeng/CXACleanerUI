@@ -4,7 +4,7 @@
  * @Email:  joey.teng.dev@gmail.com
  * @Filename: agent.cs
  * @Last modified by:   Toujour
- * @Last modified time: 15-Jul-2017
+ * @Last modified time: 17-Jul-2017
  */
 using Constants;
 
@@ -14,12 +14,12 @@ namespace AgentApplication {
     class Agent {
         private int tentativeDirection;
         private int oldDirection;
+        private int currentDirection;
         private RoutingApplication.Coordinate currentPosition;
         private RoutingApplication.Coordinate tentativePosition;
         private RoutingApplication.RouteNode[] _route;
 
         public int _serialNumber;
-        public int facingDirection;
         public int chargerDirection;
         public bool initialized;
         public RoutingApplication.Coordinate chargerPosition;
@@ -30,10 +30,10 @@ namespace AgentApplication {
             chargerPosition = null;
         }
 
-        public Agent(int serialNumber, RoutingApplication.Coordinate _chargerPosition = null, int _facingDirection = -1) {
+        public Agent(int serialNumber, RoutingApplication.Coordinate _chargerPosition = null, int _currentDirection = -1) {
             this._serialNumber = serialNumber;
-            this.facingDirection = _facingDirection;
-            this.tentativeDirection = this.facingDirection;
+            this.currentDirection = _currentDirection;
+            this.tentativeDirection = this.currentDirection;
             this.oldDirection = -1;
             this.chargerDirection = -1;
 
@@ -45,17 +45,26 @@ namespace AgentApplication {
             this.currentPosition = new RoutingApplication.Coordinate(this.chargerPosition);
         }
         private void ClearRoute() {
+            /// route & tentativeDirection & tentativePosition will be reset.
             this._route = null;
+            this.tentativeDirection = this.currentDirection;
+            this.tentativePosition = this.currentPosition;
         }
         private int Encode(int direction) {
-            return Constants.AgentConstants.CODE[facingDirection, direction];
+            return Constants.AgentConstants.CODE[this.currentDirection, direction];
         }
 
+/// Public
+        public int facingDirection {
+            get {
+                return this.currentDirection;
+            }
+        }
         public RoutingApplication.RouteNode[] Decode(string commands, int finalDirection) {
             System.Collections.Generic.Stack<RoutingApplication.RouteNode> route = new System.Collections.Generic.Stack<RoutingApplication.RouteNode>();
 
             this.tentativeDirection = finalDirection;
-            int currentDirection = finalDirection;
+            int _currentDirection = finalDirection;
             for (int j = commands.Length; j > 0; --j) {
                 int i = j - 1;
                 int value = commands[i];
@@ -63,17 +72,17 @@ namespace AgentApplication {
                     break;
                 }
                 if (value == 40) {
-                    currentDirection = Constants.AgentConstants.DECODE[currentDirection, 0];
-                    route.Push(new RoutingApplication.RouteNode(currentDirection, 1));
+                    _currentDirection = Constants.AgentConstants.DECODE[_currentDirection, 0];
+                    route.Push(new RoutingApplication.RouteNode(_currentDirection, 1));
                 } else if (value == 41) {
-                    currentDirection = Constants.AgentConstants.DECODE[currentDirection, 1];
-                    route.Push(new RoutingApplication.RouteNode(currentDirection, 1));
+                    _currentDirection = Constants.AgentConstants.DECODE[_currentDirection, 1];
+                    route.Push(new RoutingApplication.RouteNode(_currentDirection, 1));
                 } else {
                     int note = (int)commands[i];
                     int steps = 0;
 
                     if (note > 96) {
-                        route.Push(new RoutingApplication.RouteNode(currentDirection ^ 2, note - 96));
+                        route.Push(new RoutingApplication.RouteNode(_currentDirection ^ 2, note - 96));
                         continue;
                     } else if (i != 0) {
                         /// TODO: Predict Forward (Backward involved)
@@ -82,7 +91,7 @@ namespace AgentApplication {
                     if (route.Count != 0) {
                         route.Pop();
                     }
-                    route.Push(new RoutingApplication.RouteNode(currentDirection, note - 64 + steps));
+                    route.Push(new RoutingApplication.RouteNode(_currentDirection, note - 64 + steps));
                 }
             }
 
@@ -91,14 +100,13 @@ namespace AgentApplication {
                 route_[i] = route.Pop();
             }
 
-            this.oldDirection = currentDirection;
+            this.oldDirection = _currentDirection;
 
-            this.facingDirection = currentDirection;
+            this.currentDirection = _currentDirection;
 
             return route_;
         }
 
-/// Public
         public RoutingApplication.RouteNode[] route {
             get {
                 return _route;
@@ -106,12 +114,13 @@ namespace AgentApplication {
         }
 
         public void UpdateRoute(RoutingApplication.RouteNode[] route) {
+            /// tentativeDirection & tentativePosition will be updated.
             this._route = route;
-            this.oldDirection = this.facingDirection;
-            this.facingDirection = route[0].direction;
+            this.oldDirection = this.currentDirection;
+            this.currentDirection = route[0].direction;
             if (!this.initialized) {
                 this.chargerPosition = new RoutingApplication.Coordinate(this.currentPosition);
-                this.chargerDirection = this.facingDirection;
+                this.chargerDirection = this.currentDirection;
                 this.initialized = true;
             }
 
@@ -122,22 +131,23 @@ namespace AgentApplication {
         }
 
         public string Transport() {
+            /// No side effect if no error occurs.
             string commands = "";
-            this.oldDirection = this.facingDirection;
+            this.oldDirection = this.currentDirection;
 
             foreach (RoutingApplication.RouteNode i in route) {
-                if (((i.direction ^ this.facingDirection) & 1) == 0) {
+                if (((i.direction ^ this.currentDirection) & 1) == 0) {
                     commands += (char)(this.Encode(i.direction) + i.steps);
                 } else {
                     commands += (char)this.Encode(i.direction);
-                    this.facingDirection = i.direction;
+                    this.currentDirection = i.direction;
                     if (i.steps > 1) {
                         commands += (char)(this.Encode(i.direction) + i.steps - 1);
                     }
                 }
             }
-            this.tentativeDirection = this.facingDirection;
-            this.facingDirection = this.oldDirection;
+            this.tentativeDirection = this.currentDirection;
+            this.currentDirection = this.oldDirection;
 
             return commands;
         }
@@ -157,6 +167,9 @@ namespace AgentApplication {
 
         public void UpdatePosition(RoutingApplication.Coordinate position) {
             this.currentPosition = position;
+            if (this.tentativePosition == null) {
+                this.currentPosition = this.tentativePosition;
+            }
         }
 
         public void UpdatePosition(MapNode[,] map, RoutingApplication.Coordinate position) {
@@ -165,6 +178,9 @@ namespace AgentApplication {
                 for (int j = position.x; i - j >= position.y; ++j) {
                     if (Constants.MappingConstants.Unblocked(map, new RoutingApplication.Coordinate(j, i - j)) && Constants.MappingConstants.Unplanned(map, new RoutingApplication.Coordinate(j, i - j))) {
                         this.currentPosition = new RoutingApplication.Coordinate(this.chargerPosition);
+                        if (this.tentativePosition == null) {
+                            this.tentativePosition = this.currentPosition;
+                        }
 
                         return;
                     }
@@ -188,26 +204,29 @@ namespace AgentApplication {
             }
         }
 
+        public void AddRoute(RoutingApplication.RouteNode[] route_) {
+            RoutingApplication.RouteNode[] route = new RoutingApplication.RouteNode[_route.Length + route_.Length];
+            for (int i = 0; i < this._route.Length; ++i) {
+                route[i] = this._route[i];
+            }
+            for (int i = 0; i < route_.Length; ++i) {
+                route[i + this._route.Length] = route_[i];
+            }
+
+            this.UpdateRoute(route);
+        }
+
         public void NavigateTo(MapNode[,] map, RoutingApplication.Coordinate destination) {
             if (this.tentativePosition != this.currentPosition) {
                 System.Console.WriteLine("Warning: Last route have not completed yet.");
             }
 
-            RoutingApplication.RouteNode[] route = RoutingApplication.Routing.AStar(map, this.currentPosition, destination);
-            RoutingApplication.RouteNode[] rotate = this.Rotate(this.facingDirection, this.chargerDirection);
-            RoutingApplication.RouteNode[] _route = new RoutingApplication.RouteNode[route.Length + rotate.Length];
-            for (int i = 0; i < route.Length; ++i) {
-                _route[i] = route[i];
-            }
-            for (int i = 0; i < rotate.Length; ++i) {
-                _route[i + route.Length] = rotate[i];
-            }
-
-            this.UpdateRoute(_route);
+            this.AddRoute(RoutingApplication.Routing.AStar(map, this.currentPosition, destination));
         }
 
         public void BackToCharger(MapNode[,] map) {
             this.NavigateTo(map, this.chargerPosition);
+            this.AddRoute(this.Rotate(this.currentDirection, this.chargerDirection));
         }
 
         public void Commit(MapNode[,] map) {
@@ -225,8 +244,8 @@ namespace AgentApplication {
                 System.Console.WriteLine("Warning: Different tentativePosition with calculated position.");
                 this.currentPosition = this.tentativePosition;
             }
-            this.facingDirection = this.tentativeDirection;
-            this.oldDirection = this.facingDirection;
+            this.currentDirection = this.tentativeDirection;
+            this.oldDirection = this.currentDirection;
             this.ClearRoute();
         }
     }
