@@ -129,13 +129,14 @@ namespace RoutingApplication {
         }
 
         private static RouteNode[] AStarRebuildRoute(MapNode[,] map, Coordinate destination, int[,] history) {
+            /// Rebuild route and mark all grids on the path as PLANNED
             System.Console.WriteLine("A* Rebuild Route\n"); /// DEBUG
 
             System.Collections.Generic.Queue<int> record = new System.Collections.Generic.Queue<int>();
             System.Collections.Generic.Stack<int> stack = new System.Collections.Generic.Stack<int>();
 
             Coordinate current = new Coordinate(destination);
-            ClearPlan(map);
+
             while (history[current.x, current.y] != RoutingConstants.DIR_INIT_POINT) {
                 int direction = history[current.x, current.y];
 
@@ -188,6 +189,50 @@ namespace RoutingApplication {
             return route.ToArray();
         }
 /// Public
+
+        public static RouteNode[] AddRoute(RouteNode[] lhs, RouteNode[] rhs) {
+            if (lhs == null && rhs != null) {
+                return new RouteNode[](rhs);
+            }
+            if (lhs != null && rhs == null) {
+                return new RouteNode[](lhs);
+            }
+            if (lhs == null && rhs == null) {
+                return null;
+            }
+
+            RouteNode[] route = new RouteNode[lhs.Length + rhs.Length];
+
+            for (int i = 0; i < lhs.Length; ++i) {
+                route[i] = lhs[i];
+            }
+            for (int i = 0; i < rhs.Length; ++i) {
+                route[i + lhs.Length] = rhs[i];
+            }
+
+            return route;
+        }
+
+        public Coordinate ClosestUncleanPoint(MapNode[,] map, Coordinate initPoint, bool selectedOnly = false) {
+            System.Collections.Queue queue = new System.Collections.Queue();
+            queue.Enqueue(initPoint);
+
+            while (queue.Count != 0) {
+                Coordinate current = queue.Dequeue();
+
+                if (Constants.MappingConstants.Unplanned(map, current + i)) {
+                    return (current + i);
+                }
+
+                foreach (Coordinate i in Constants.RoutingConstants.MOVE_INCREMENT) {
+                    if (Constants.MappingConstants.Unblocked(map, current + i) && (!selectedOnly || Constants.MappingConstants.Selected(map, current + i))) {
+                            queue.Euqueue(current + i);
+                    }
+                }
+            }
+
+            return null;
+        }
 
         public static bool CheckNext(MapNode[,] map, Coordinate current, int direction, bool ignoreFlags = false, bool selectedOnly = false) {
             Coordinate _tmp = new Coordinate();
