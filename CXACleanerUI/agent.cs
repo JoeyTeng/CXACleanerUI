@@ -70,6 +70,7 @@ namespace AgentApplication {
                 return this.currentDirection;
             }
         }
+
         public RoutingApplication.RouteNode[] Decode(string commands, int finalDirection) {
             System.Collections.Generic.Stack<RoutingApplication.RouteNode> route = new System.Collections.Generic.Stack<RoutingApplication.RouteNode>();
 

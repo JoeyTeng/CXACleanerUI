@@ -4,7 +4,7 @@
  * @Email:  joey.teng.dev@gmail.com
  * @Filename: routing.cs
  * @Last modified by:   Toujour
- * @Last modified time: 15-Jul-2017
+ * @Last modified time: 17-Jul-2017
  */
 using Priority_Queue;
 using Constants;
@@ -129,13 +129,14 @@ namespace RoutingApplication {
         }
 
         private static RouteNode[] AStarRebuildRoute(MapNode[,] map, Coordinate destination, int[,] history) {
+            /// Rebuild route and mark all grids on the path as PLANNED
             System.Console.WriteLine("A* Rebuild Route\n"); /// DEBUG
 
             System.Collections.Generic.Queue<int> record = new System.Collections.Generic.Queue<int>();
             System.Collections.Generic.Stack<int> stack = new System.Collections.Generic.Stack<int>();
 
             Coordinate current = new Coordinate(destination);
-            ClearPlan(map);
+
             while (history[current.x, current.y] != RoutingConstants.DIR_INIT_POINT) {
                 int direction = history[current.x, current.y];
 
@@ -189,15 +190,80 @@ namespace RoutingApplication {
         }
 /// Public
 
+        public static RouteNode[] AddRoute(RouteNode[] lhs, RouteNode[] rhs) {
+            if (lhs == null && rhs != null) {
+                return new RouteNode[](rhs);
+            }
+            if (lhs != null && rhs == null) {
+                return new RouteNode[](lhs);
+            }
+            if (lhs == null && rhs == null) {
+                return null;
+            }
+
+            RouteNode[] route = new RouteNode[lhs.Length + rhs.Length];
+
+            for (int i = 0; i < lhs.Length; ++i) {
+                route[i] = lhs[i];
+            }
+            for (int i = 0; i < rhs.Length; ++i) {
+                route[i + lhs.Length] = rhs[i];
+            }
+
+            return route;
+        }
+
+        public Coordinate ClosestUncleanPoint(MapNode[,] map, Coordinate initPoint, bool selectedOnly = false) {
+            System.Collections.Queue queue = new System.Collections.Queue();
+            queue.Enqueue(initPoint);
+
+            while (queue.Count != 0) {
+                Coordinate current = queue.Dequeue();
+
+                if (Constants.MappingConstants.Unplanned(map, current + i)) {
+                    return (current + i);
+                }
+
+                foreach (Coordinate i in Constants.RoutingConstants.MOVE_INCREMENT) {
+                    if (Constants.MappingConstants.Unblocked(map, current + i) && (!selectedOnly || Constants.MappingConstants.Selected(map, current + i))) {
+                            queue.Euqueue(current + i);
+                    }
+                }
+            }
+
+            return null;
+        }
+
         public static bool CheckNext(MapNode[,] map, Coordinate current, int direction, bool ignoreFlags = false, bool selectedOnly = false) {
             Coordinate _tmp = new Coordinate();
             return CheckNextStep(map, current, direction, out _tmp, ignoreFlags: ignoreFlags, selectedOnly: selectedOnly);
         }
 
-        public static void ClearPlan(MapNode[,] map) {
-            for (int i = 0; i < map.GetLength(0); ++i) {
-                for (int j = 0; j < map.GetLength(1); ++j) {
-                    Constants.MappingConstants.Unplan(map, new Coordinate(i, j));
+        public static void ClearPlan(MapNode[,] map, Coordinate target = null, bool selectedOnly = false) {
+            if (target == null) {
+                /// By default, clear the whole map
+                for (int i = 0; i < map.GetLength(0); ++i) {
+                    for (int j = 0; j < map.GetLength(1); ++j) {
+                        Constants.MappingConstants.Unplan(map, new Coordinate(i, j));
+                    }
+                }
+            } else {
+                System.Collections.Stack stack = new System.Collections.Stack();
+                System.Collections.Hashtable hash = new System.Collections.Hashtable();
+
+                stack.Push(target);
+                hash.Add(target, hash.Count);
+
+                while (stack.Count != 0) {
+                    Coordinate current = stack.Pop();
+                    Constants.MappingConstants.Unplan(map, current);
+
+                    foreach (Coordinate i in Constants.RoutingConstants.MOVE_INCREMENT.Length) {
+                        if (!hash.Contains(current + i) && Constants.MappingConstants.Unblocked(map, current + i) && (!selectedOnly || Constants.MappingConstants.Selected(map, current + i))) {
+                            stack.Push(current + i);
+                            hash.Add(current + i, hash.Count);
+                        }
+                    }
                 }
             }
         }

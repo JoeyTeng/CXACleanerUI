@@ -4,7 +4,7 @@
  * @Email:  joey.teng.dev@gmail.com
  * @Filename: Flood-Filled.cs
  * @Last modified by:   Toujour
- * @Last modified time: 15-Jul-2017
+ * @Last modified time: 17-Jul-2017
  */
 using System;
 using System.Drawing;
@@ -157,35 +157,25 @@ namespace CXACleanerUI {
         }
 
         static public RoutingApplication.RouteNode[] FindPath(int[,] map, int X, int Y, bool ignoreFlags = false, bool selectedOnly = false) {
-            RoutingApplication.Routing.ClearPlan(map);
+            RoutingApplication.Routing.ClearPlan(map, target: new RoutingApplication.Coordinate(X, Y), selectedOnly: selectedOnly);
             RoutingApplication.Coordinate initPoint = new RoutingApplication.Coordinate(X, Y);
             RoutingApplication.Coordinate endPoint;
             RoutingApplication.RouteNode[] route;
-            RoutingApplication.Routing.RouteSnakeShape(map, initPoint, out endPoint, out route, ignoreFlags: ignoreFlags, selectedOnly: selectedOnly);
-            //if (route == null)
-            //{
-            //    int xMax = 0, xMin = 999, yMax = 0, yMin = 999;
-            //    for (int i = 0; i < map.GetLength(0); i++) {
-            //        for (int j = 0; j < map.GetLength(1); j++) {
-            //            if (Constants.MappingConstants.Selected(map, new RoutingApplication.Coordinate(i, j))) {
-            //                if (i < xMin) xMin = i;
-            //                else if (i > xMax) xMax = i;
-            //                if (j < yMin) yMin = j;
-            //                else if (j > yMax) yMax = j;
-            //            }
-            //        }
-            //    }
-            //    int destinationX = 
-            //    route = RoutingApplication.Routing.AStar(map, new RoutingApplication.Coordinate(X, Y), )
-            //}
-            System.Console.WriteLine(String.Format("\nFindPath: {0}\n", route != null));
+            RoutingApplication.RouteNode[] _route;
 
-            //System.Console.WriteLine("{0} {1}\n", endPoint.x, endPoint.y);
+            endPoint = RoutingApplication.Routing.ClosestUncleanPoint(map, initPoint, selectedOnly: selectedOnly);
+            while (endPoint != null) {
+                _route = RoutingApplication.Routing.AStar(map, initPoint, endPoint);
+                _route = _route or new RoutingApplication.RouteNode[0];
+                RoutingApplication.Routing.AddRoute(route, _route);
 
-            //foreach (RoutingApplication.RouteNode node in route)
-            //{
-            //    System.Console.WriteLine("{0} {1}", node.direction, node.steps);
-            //}
+                RoutingApplication.Routing.RouteSnakeShape(map, initPoint, out endPoint, out _route, ignoreFlags: ignoreFlags, selectedOnly: selectedOnly);
+                _route = _route or new RoutingApplication.RouteNode[0];
+                RoutingApplication.Routing.AddRoute(route, _route);
+
+                endPoint = RoutingApplication.Routing.ClosestUncleanPoint(map, endPoint, selectedOnly:selectedOnly);
+            }
+            System.Console.WriteLine(String.Format("\nFindPath: {0}\n", route != null)); /// DEBUG
 
             return route;
         }
