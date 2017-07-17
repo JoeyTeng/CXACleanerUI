@@ -4,7 +4,7 @@
  * @Email:  joey.teng.dev@gmail.com
  * @Filename: agent.cs
  * @Last modified by:   Toujour
- * @Last modified time: 17-Jul-2017
+ * @Last modified time: 18-Jul-2017
  */
 using Constants;
 
@@ -126,6 +126,11 @@ namespace AgentApplication {
 
         public void UpdateRoute(RoutingApplication.RouteNode[] route) {
             /// tentativeDirection & tentativePosition will be updated.
+            if (route == null || route.Length == 0) {
+                System.Console.WriteLine("Warning: UpdateRoute: null route/0 length route recieved.");
+                return;
+            }
+
             this._route = route;
             this.oldDirection = this.currentDirection;
             this.currentDirection = route[0].direction;
